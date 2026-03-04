@@ -14,7 +14,7 @@ const subcategories = [
     tag: 'A partir das 14h',
     description: 'A partir das 14h. Apresente documento com foto na recepção.',
     isReception: false,
-    link: null,
+    link: '/sua-estadia/check-in',
   },
   {
     icon: 'ri-logout-box-line',
