@@ -23,6 +23,7 @@ const subcategories = [
     tag: '1 vaga · Tarifado',
     description: '1 vaga disponível. Solicitação na recepção. Serviço tarifado.',
     isReception: false,
+    linkTo: '/lazer-estrutura/carregamento-eletrico',
   },
   {
     icon: 'ri-car-line',

@@ -44,7 +44,7 @@ const subcategories = [
     tag: 'Rede e senha',
     description: 'Informações de rede e senha disponíveis na recepção.',
     isReception: false,
-    link: '/wifi',
+    link: '/sua-estadia/wi-fi',
   },
   {
     icon: 'ri-service-line',

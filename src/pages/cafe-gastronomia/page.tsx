@@ -12,7 +12,7 @@ const subcategories = [
     title: 'Café da Manhã',
     tag: 'Horários e orientações',
     description: 'Horários e orientações para o café da manhã do hotel.',
-    link: '/cafe-da-manha',
+    link: '/cafe-gastronomia/cafe-da-manha',
     isReception: false,
   },
   {

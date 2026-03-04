@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PageHeader from '../../components/feature/PageHeader';
 import PageFooter from '../../components/feature/PageFooter';
 import RecepcionModal from '../../components/feature/RecepcionModal';
@@ -37,6 +38,7 @@ const subcategories = [
     href: null,
     external: false,
     isReception: false,
+    linkTo: '/links-uteis/emergencias',
   },
   {
     icon: 'ri-map-pin-2-line',
@@ -151,6 +153,19 @@ const LinksUteisPage = () => {
                   >
                     {inner}
                   </a>
+                );
+              }
+
+              if ((item as any).linkTo) {
+                return (
+                  <Link
+                    key={item.title}
+                    to={(item as any).linkTo}
+                    className={cardClass}
+                    title={item.description}
+                  >
+                    {inner}
+                  </Link>
                 );
               }
 
