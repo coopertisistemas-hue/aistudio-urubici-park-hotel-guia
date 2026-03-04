@@ -50,6 +50,7 @@ const subcategories = [
     href: null,
     external: false,
     isReception: false,
+    linkTo: '/links-uteis/localizacao',
   },
   {
     icon: 'ri-file-shield-2-line',
