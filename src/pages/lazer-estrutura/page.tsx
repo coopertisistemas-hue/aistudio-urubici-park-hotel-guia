@@ -33,6 +33,7 @@ const subcategories = [
     tag: 'Vagas e orientações',
     description: 'Vagas e orientações para uso do estacionamento do hotel.',
     isReception: false,
+    linkTo: '/lazer-estrutura/estacionamento',
   },
   {
     icon: 'ri-building-4-line',
