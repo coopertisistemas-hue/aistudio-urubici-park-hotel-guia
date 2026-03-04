@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import DetailLayout, { type DetailSection } from '../../../components/feature/DetailLayout';
+import DetailLayout, { type DetailSection } from '../../components/feature/DetailLayout';
 
 const sections: DetailSection[] = [
   {
