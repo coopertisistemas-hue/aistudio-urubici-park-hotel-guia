@@ -24,7 +24,7 @@ const subcategories = [
     tag: 'Até 11h',
     description: 'Até 11h. Devolva as chaves na recepção ao sair.',
     isReception: false,
-    link: null,
+    link: '/sua-estadia/check-out',
   },
   {
     icon: 'ri-time-line',

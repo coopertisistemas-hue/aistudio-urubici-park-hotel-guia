@@ -20,6 +20,7 @@ const HorarioDeSilencioPage = lazy(() => import('../pages/regras-do-hotel/horari
 const VisitantesPage = lazy(() => import('../pages/regras-do-hotel/visitantes/page'));
 const LocalizacaoPage = lazy(() => import('../pages/links-uteis/localizacao/page'));
 const CheckInPage = lazy(() => import('../pages/sua-estadia/check-in/page'));
+const CheckOutPage = lazy(() => import('../pages/sua-estadia/check-out/page'));
 const NotFoundPage = lazy(() => import('../pages/NotFound'));
 
 const routes: RouteObject[] = [
@@ -34,6 +35,7 @@ const routes: RouteObject[] = [
       { path: '/lazer-estrutura', element: <LazerEstruturaPage /> },
       { path: '/salao-de-jogos', element: <SalaoDeJogosPage /> },
       { path: '/sua-estadia/check-in', element: <CheckInPage /> },
+      { path: '/sua-estadia/check-out', element: <CheckOutPage /> },
       { path: '/sua-estadia/wi-fi', element: <WifiDetailPage /> },
       { path: '/lazer-estrutura/carregamento-eletrico', element: <CarregamentoEletricoPage /> },
       { path: '/links-uteis/emergencias', element: <EmergenciasPage /> },
