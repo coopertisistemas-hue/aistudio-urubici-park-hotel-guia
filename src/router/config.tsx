@@ -9,10 +9,13 @@ const CafeGastronomiaPage = lazy(() => import('../pages/cafe-gastronomia/page'))
 const RestaurantePimentaRosaPage = lazy(() => import('../pages/restaurante-pimenta-rosa/page'));
 const LazerEstruturaPage = lazy(() => import('../pages/lazer-estrutura/page'));
 const SalaoDeJogosPage = lazy(() => import('../pages/salao-de-jogos/page'));
-const WifiPage = lazy(() => import('../pages/wifi/page'));
-const CafeDaManhaPage = lazy(() => import('../pages/cafe-da-manha/page'));
+const WifiDetailPage = lazy(() => import('../pages/sua-estadia/wi-fi/page'));
+const CafeDaManhaDetailPage = lazy(() => import('../pages/cafe-gastronomia/cafe-da-manha/page'));
 const EventosCorporativoPage = lazy(() => import('../pages/eventos-corporativo/page'));
 const LinksUteisPage = lazy(() => import('../pages/links-uteis/page'));
+const CarregamentoEletricoPage = lazy(() => import('../pages/lazer-estrutura/carregamento-eletrico/page'));
+const EmergenciasPage = lazy(() => import('../pages/links-uteis/emergencias/page'));
+const AuditorioPage = lazy(() => import('../pages/eventos-corporativo/auditorio/page'));
 const NotFoundPage = lazy(() => import('../pages/NotFound'));
 
 const routes: RouteObject[] = [
@@ -26,8 +29,11 @@ const routes: RouteObject[] = [
       { path: '/restaurante-pimenta-rosa', element: <RestaurantePimentaRosaPage /> },
       { path: '/lazer-estrutura', element: <LazerEstruturaPage /> },
       { path: '/salao-de-jogos', element: <SalaoDeJogosPage /> },
-      { path: '/wifi', element: <WifiPage /> },
-      { path: '/cafe-da-manha', element: <CafeDaManhaPage /> },
+      { path: '/sua-estadia/wi-fi', element: <WifiDetailPage /> },
+      { path: '/lazer-estrutura/carregamento-eletrico', element: <CarregamentoEletricoPage /> },
+      { path: '/links-uteis/emergencias', element: <EmergenciasPage /> },
+      { path: '/eventos-corporativo/auditorio', element: <AuditorioPage /> },
+      { path: '/cafe-gastronomia/cafe-da-manha', element: <CafeDaManhaDetailPage /> },
       { path: '/eventos-corporativo', element: <EventosCorporativoPage /> },
       { path: '/links-uteis', element: <LinksUteisPage /> },
       { path: '*', element: <NotFoundPage /> },
