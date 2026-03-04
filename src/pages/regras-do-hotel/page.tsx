@@ -52,6 +52,7 @@ const subcategories = [
     tag: 'Conservação',
     description: 'Conservação do patrimônio. Danos serão cobrados ao responsável.',
     isReception: false,
+    linkTo: '/regras-do-hotel/danos-e-responsabilidade',
   },
   {
     icon: 'ri-phone-line',

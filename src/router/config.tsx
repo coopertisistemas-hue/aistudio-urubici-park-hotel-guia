@@ -18,6 +18,7 @@ const EmergenciasPage = lazy(() => import('../pages/links-uteis/emergencias/page
 const AuditorioPage = lazy(() => import('../pages/eventos-corporativo/auditorio/page'));
 const HorarioDeSilencioPage = lazy(() => import('../pages/regras-do-hotel/horario-de-silencio/page'));
 const VisitantesPage = lazy(() => import('../pages/regras-do-hotel/visitantes/page'));
+const DanosEResponsabilidadePage = lazy(() => import('../pages/regras-do-hotel/danos-e-responsabilidade/page'));
 const LocalizacaoPage = lazy(() => import('../pages/links-uteis/localizacao/page'));
 const CheckInPage = lazy(() => import('../pages/sua-estadia/check-in/page'));
 const CheckOutPage = lazy(() => import('../pages/sua-estadia/check-out/page'));
@@ -46,6 +47,7 @@ const routes: RouteObject[] = [
       { path: '/eventos-corporativo/auditorio', element: <AuditorioPage /> },
       { path: '/regras-do-hotel/horario-de-silencio', element: <HorarioDeSilencioPage /> },
       { path: '/regras-do-hotel/visitantes', element: <VisitantesPage /> },
+      { path: '/regras-do-hotel/danos-e-responsabilidade', element: <DanosEResponsabilidadePage /> },
       { path: '/cafe-gastronomia/cafe-da-manha', element: <CafeDaManhaDetailPage /> },
       { path: '/eventos-corporativo', element: <EventosCorporativoPage /> },
       { path: '/links-uteis', element: <LinksUteisPage /> },
