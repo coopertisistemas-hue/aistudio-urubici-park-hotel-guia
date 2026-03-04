@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PageHeader from '../../components/feature/PageHeader';
 import PageFooter from '../../components/feature/PageFooter';
 import RecepcionModal from '../../components/feature/RecepcionModal';
@@ -13,6 +14,7 @@ const subcategories = [
     tag: 'Das 22h às 08h',
     description: 'Das 22h às 08h. Pedimos respeito ao silêncio para o conforto de todos.',
     isReception: false,
+    linkTo: '/regras-do-hotel/horario-de-silencio',
   },
   {
     icon: 'ri-user-add-line',
@@ -103,30 +105,47 @@ const RegrasDoHotelPage = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            {subcategories.map((item) => (
-              <button
-                key={item.title}
-                onClick={item.isReception ? () => setModalOpen(true) : undefined}
-                className="bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-2xl hover:scale-105 cursor-pointer group text-left"
-                title={item.description}
-              >
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 transition-colors"
-                  style={{ backgroundColor: `${item.color}b3` }}
+            {subcategories.map((item) => {
+              const cardClass = 'bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-2xl hover:scale-105 cursor-pointer group text-left';
+              const inner = (
+                <>
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 transition-colors"
+                    style={{ backgroundColor: `${item.color}b3` }}
+                  >
+                    <i className={`${item.icon} text-white text-xl`}></i>
+                  </div>
+                  <h3 className="text-white font-bold text-sm text-center mb-1 drop-shadow-sm">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-center font-medium mb-1" style={{ color: item.accentColor }}>
+                    {item.tag}
+                  </p>
+                  <p className="text-white/80 text-xs text-center leading-snug">
+                    {item.description}
+                  </p>
+                </>
+              );
+
+              if ((item as any).linkTo) {
+                return (
+                  <Link key={item.title} to={(item as any).linkTo} className={cardClass} title={item.description}>
+                    {inner}
+                  </Link>
+                );
+              }
+
+              return (
+                <button
+                  key={item.title}
+                  onClick={item.isReception ? () => setModalOpen(true) : undefined}
+                  className={cardClass}
+                  title={item.description}
                 >
-                  <i className={`${item.icon} text-white text-xl`}></i>
-                </div>
-                <h3 className="text-white font-bold text-sm text-center mb-1 drop-shadow-sm">
-                  {item.title}
-                </h3>
-                <p className="text-xs text-center font-medium mb-1" style={{ color: item.accentColor }}>
-                  {item.tag}
-                </p>
-                <p className="text-white/80 text-xs text-center leading-snug">
-                  {item.description}
-                </p>
-              </button>
-            ))}
+                  {inner}
+                </button>
+              );
+            })}
           </div>
         </div>
 
