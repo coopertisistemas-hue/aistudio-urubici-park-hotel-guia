@@ -24,6 +24,7 @@ const subcategories = [
     tag: 'Áreas comuns',
     description: 'Permitidos apenas nas áreas comuns do hotel.',
     isReception: false,
+    linkTo: '/regras-do-hotel/visitantes',
   },
   {
     icon: 'ri-footprint-line',
