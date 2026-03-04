@@ -21,19 +21,17 @@ const HomePage = () => {
     <div className="min-h-screen relative overflow-hidden">
       {/* Header */}
       <header
-        className={`w-full py-6 px-4 relative transition-all duration-300 ${
-          isScrolled ? 'fixed top-0 left-0 right-0 z-50 bg-white shadow-lg' : ''
-        }`}
+        className={`w-full py-6 px-4 relative transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 right-0 z-50 bg-white shadow-lg' : ''
+          }`}
       >
         <div className="max-w-md mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
-                className={`w-10 h-10 backdrop-blur-md rounded-full flex items-center justify-center overflow-hidden shadow-lg hover:scale-105 transition-all cursor-pointer ${
-                  isScrolled
+                className={`w-10 h-10 backdrop-blur-md rounded-full flex items-center justify-center overflow-hidden shadow-lg hover:scale-105 transition-all cursor-pointer ${isScrolled
                     ? 'bg-blue-50 border border-blue-200'
                     : 'bg-white/20 border border-white/30 hover:bg-white/30'
-                }`}
+                  }`}
                 title="Ir para página inicial"
                 aria-label="Ir para página inicial"
               >
@@ -44,23 +42,20 @@ const HomePage = () => {
                 />
               </button>
               <button
-                className={`drop-shadow-lg hover:opacity-80 transition-all cursor-pointer text-left ${
-                  isScrolled ? 'text-blue-600' : 'text-white'
-                }`}
+                className={`drop-shadow-lg hover:opacity-80 transition-all cursor-pointer text-left ${isScrolled ? 'text-blue-600' : 'text-white'
+                  }`}
                 title="Ir para página inicial"
                 aria-label="Ir para página inicial"
               >
                 <h1
-                  className={`font-bold text-lg drop-shadow-md whitespace-nowrap ${
-                    isScrolled ? 'text-blue-600' : 'text-blue-300'
-                  }`}
+                  className={`font-bold text-lg drop-shadow-md whitespace-nowrap ${isScrolled ? 'text-blue-600' : 'text-blue-300'
+                    }`}
                 >
                   Urubici Park Hotel
                 </h1>
                 <p
-                  className={`text-xs drop-shadow-sm mt-0.5 leading-tight ${
-                    isScrolled ? 'text-gray-600' : 'text-white/90'
-                  }`}
+                  className={`text-xs drop-shadow-sm mt-0.5 leading-tight ${isScrolled ? 'text-gray-600' : 'text-white/90'
+                    }`}
                 >
                   Hospedagem Premium, experiência única na Serra.
                 </p>
@@ -68,33 +63,29 @@ const HomePage = () => {
             </div>
             <div className="flex items-center gap-2">
               <button
-                className={`w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all ${
-                  isScrolled
+                className={`w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all ${isScrolled
                     ? 'bg-blue-50 hover:bg-blue-100 border border-blue-200'
                     : 'bg-white/10 hover:bg-white/20 border border-white/20'
-                }`}
+                  }`}
                 title="Alterar idioma"
                 aria-label="Alterar idioma do site"
               >
                 <i
-                  className={`ri-global-line text-lg ${
-                    isScrolled ? 'text-blue-600' : 'text-white'
-                  }`}
+                  className={`ri-global-line text-lg ${isScrolled ? 'text-blue-600' : 'text-white'
+                    }`}
                 ></i>
               </button>
               <button
-                className={`w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all ${
-                  isScrolled
+                className={`w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all ${isScrolled
                     ? 'bg-blue-50 hover:bg-blue-100 border border-blue-200'
                     : 'bg-white/10 hover:bg-white/20 border border-white/20'
-                }`}
+                  }`}
                 title="Buscar"
                 aria-label="Abrir busca"
               >
                 <i
-                  className={`ri-search-line text-lg ${
-                    isScrolled ? 'text-blue-600' : 'text-white'
-                  }`}
+                  className={`ri-search-line text-lg ${isScrolled ? 'text-blue-600' : 'text-white'
+                    }`}
                 ></i>
               </button>
             </div>
@@ -118,32 +109,100 @@ const HomePage = () => {
 
         {/* Quick Shortcuts */}
         <div className="px-4 mb-8">
-          <div className="bg-gray-500/20 backdrop-blur-md rounded-2xl p-4 border border-gray-400/30 shadow-xl">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-xl">
             <div
               className="flex items-center justify-center gap-2 mb-4"
               aria-label="ATALHOS DISPONÍVEIS"
             >
               <i className="ri-flashlight-fill text-yellow-400 text-lg drop-shadow-sm"></i>
-              <h3 className="text-white font-medium text-sm uppercase tracking-wide drop-shadow-sm">
+              <h3 className="text-white/80 font-semibold text-xs uppercase tracking-widest drop-shadow-sm">
                 ATALHOS DISPONÍVEIS
               </h3>
             </div>
-            <div className="flex flex-wrap justify-center gap-3">
-              <button className="bg-gray-500/90 hover:bg-gray-600 hover:scale-105 active:scale-95 text-white font-medium px-4 py-2 rounded-full shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300/50 text-sm backdrop-blur-sm border border-gray-400/30 whitespace-nowrap cursor-pointer flex items-center gap-2">
-                <i className="ri-sun-cloudy-line text-base"></i>
-                <span>Clima</span>
-              </button>
-              <button className="bg-orange-500/90 hover:bg-orange-600 hover:scale-105 active:scale-95 text-white font-medium px-4 py-2.5 rounded-full shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-300/50 text-sm backdrop-blur-sm border border-orange-400/30 whitespace-nowrap cursor-pointer">
-                Localização
-              </button>
-              <button className="bg-red-500/90 hover:bg-red-600 hover:scale-105 active:scale-95 text-white font-medium px-4 py-2 rounded-full shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-300/50 text-sm backdrop-blur-sm border border-red-400/30 whitespace-nowrap cursor-pointer flex items-center gap-2">
-                <i className="ri-hospital-line text-base"></i>
-                <span>Emergências</span>
-              </button>
-              <button className="bg-gray-500/90 hover:bg-gray-600 hover:scale-105 active:scale-99 text-white font-medium px-4 py-2 rounded-full shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300/50 text-sm backdrop-blur-sm border border-gray-400/30 whitespace-nowrap cursor-pointer flex items-center gap-2">
-                <i className="ri-compass-3-line text-base"></i>
-                <span>Guia Rápido</span>
-              </button>
+            <div className="grid grid-cols-5 gap-2 border-box">
+              <Link to="/cafe-gastronomia" className="flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 p-1.5 rounded-xl transition-all cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-400/30 group-hover:scale-110 transition-transform">
+                  <i className="ri-customer-service-2-line text-blue-300 text-lg"></i>
+                </div>
+                <span className="text-white/80 text-[10px] uppercase font-semibold">Recepção</span>
+              </Link>
+              <Link to="/sua-estadia/wi-fi" className="flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 p-1.5 rounded-xl transition-all cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                  <i className="ri-wifi-line text-purple-300 text-lg"></i>
+                </div>
+                <span className="text-white/80 text-[10px] uppercase font-semibold">Wi-Fi</span>
+              </Link>
+              <Link to="/cafe-gastronomia/cafe-da-manha" className="flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 p-1.5 rounded-xl transition-all cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center border border-orange-400/30 group-hover:scale-110 transition-transform">
+                  <i className="ri-cup-line text-orange-300 text-lg"></i>
+                </div>
+                <span className="text-white/80 text-[10px] uppercase font-semibold">Café</span>
+              </Link>
+              <Link to="/sua-estadia/check-out" className="flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 p-1.5 rounded-xl transition-all cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-teal-500/20 flex items-center justify-center border border-teal-400/30 group-hover:scale-110 transition-transform">
+                  <i className="ri-door-open-line text-teal-300 text-lg"></i>
+                </div>
+                <span className="text-white/80 text-[10px] uppercase font-semibold">Check-out</span>
+              </Link>
+              <a href="PASTE_UPH_GOOGLE_REVIEW_LINK_HERE" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 p-1.5 rounded-xl transition-all cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center border border-yellow-400/30 group-hover:scale-110 transition-transform">
+                  <i className="ri-star-line text-yellow-300 text-lg"></i>
+                </div>
+                <span className="text-white/80 text-[10px] uppercase font-semibold">Avaliar</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Avaliações no Google Section */}
+        <div className="px-4 mb-8">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 shadow-xl">
+            <div className="flex flex-col items-center text-center justify-center mb-5">
+              <h3 className="text-white font-bold text-lg flex items-center gap-2 drop-shadow-md">
+                <i className="ri-google-fill text-white"></i>
+                Avaliações no Google
+              </h3>
+              <p className="text-white/60 text-xs mt-1">Opiniões recentes de hóspedes</p>
+            </div>
+
+            <div className="flex flex-col gap-3 mb-5">
+              {[
+                { name: 'Mariana S.', rating: '★★★★★', date: 'Fev/2026', text: 'Atendimento excelente, quarto impecável e café da manhã muito bem servido. Voltaremos!' },
+                { name: 'Carlos A.', rating: '★★★★★', date: 'Jan/2026', text: 'Localização perfeita e equipe muito atenciosa. Experiência premium do início ao fim.' },
+                { name: 'Fernanda R.', rating: '★★★★☆', date: 'Jan/2026', text: 'Tudo ótimo. Sugestão: mais opções sem lactose no café. No geral, excelente!' },
+                { name: 'João P.', rating: '★★★★★', date: 'Dez/2025', text: 'Hotel lindo, cama confortável e silêncio à noite. Recomendo muito.' },
+                { name: 'Patrícia M.', rating: '★★★★★', date: 'Dez/2025', text: 'Check-in rápido, recepção prestativa e estrutura impecável. Nota 10.' },
+              ].map((review, i) => (
+                <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-3">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-white font-semibold text-sm drop-shadow-sm">{review.name}</span>
+                    <span className="text-yellow-400 text-xs tracking-widest">{review.rating}</span>
+                  </div>
+                  <p className="text-white/80 text-xs leading-relaxed italic mb-1.5">"{review.text}"</p>
+                  <p className="text-white/40 text-[10px]">{review.date}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <a
+                href="PASTE_UPH_GOOGLE_REVIEW_LINK_HERE"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white hover:bg-gray-100 text-blue-900 font-bold text-xs uppercase tracking-wide py-2.5 rounded-lg text-center transition-colors shadow-md flex justify-center items-center gap-1.5"
+              >
+                <i className="ri-star-smile-fill text-sm"></i>
+                Avaliar no Google
+              </a>
+              <a
+                href="PASTE_UPH_GOOGLE_MAPS_LINK_HERE"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/15 hover:bg-white/25 border border-white/20 text-white font-bold text-xs uppercase tracking-wide py-2.5 rounded-lg text-center transition-colors shadow-md flex justify-center items-center gap-1.5"
+              >
+                <i className="ri-map-pin-2-line text-sm"></i>
+                Ver no Google
+              </a>
             </div>
           </div>
         </div>
