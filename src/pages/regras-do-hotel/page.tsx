@@ -43,6 +43,7 @@ const subcategories = [
     tag: 'Restrições e conduta',
     description: 'Restrições e conduta esperada durante a estadia.',
     isReception: false,
+    linkTo: '/regras-do-hotel/proibicoes',
   },
   {
     icon: 'ri-shield-check-line',
