@@ -34,6 +34,7 @@ const subcategories = [
     tag: 'Conforme normas',
     description: 'Conforme normas do hotel. Consulte a recepção para detalhes.',
     isReception: false,
+    linkTo: '/regras-do-hotel/politica-de-pets',
   },
   {
     icon: 'ri-forbid-2-line',
