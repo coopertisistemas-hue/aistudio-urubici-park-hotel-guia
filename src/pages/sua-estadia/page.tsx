@@ -54,7 +54,7 @@ const subcategories = [
     tag: 'Horário operacional',
     description: 'Limpeza no horário operacional do hotel. Solicitações na recepção.',
     isReception: false,
-    link: null,
+    link: '/sua-estadia/limpeza-e-enxoval',
   },
   {
     icon: 'ri-phone-line',

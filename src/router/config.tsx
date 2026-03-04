@@ -22,6 +22,7 @@ const LocalizacaoPage = lazy(() => import('../pages/links-uteis/localizacao/page
 const CheckInPage = lazy(() => import('../pages/sua-estadia/check-in/page'));
 const CheckOutPage = lazy(() => import('../pages/sua-estadia/check-out/page'));
 const LateCheckOutPage = lazy(() => import('../pages/sua-estadia/late-check-out/page'));
+const LimpezaEEnxovalPage = lazy(() => import('../pages/sua-estadia/limpeza-e-enxoval/page'));
 const NotFoundPage = lazy(() => import('../pages/NotFound'));
 
 const routes: RouteObject[] = [
@@ -38,6 +39,7 @@ const routes: RouteObject[] = [
       { path: '/sua-estadia/check-in', element: <CheckInPage /> },
       { path: '/sua-estadia/check-out', element: <CheckOutPage /> },
       { path: '/sua-estadia/late-check-out', element: <LateCheckOutPage /> },
+      { path: '/sua-estadia/limpeza-e-enxoval', element: <LimpezaEEnxovalPage /> },
       { path: '/sua-estadia/wi-fi', element: <WifiDetailPage /> },
       { path: '/lazer-estrutura/carregamento-eletrico', element: <CarregamentoEletricoPage /> },
       { path: '/links-uteis/emergencias', element: <EmergenciasPage /> },
