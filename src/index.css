@@ -63,7 +63,7 @@
 }
 
 .animate-sticker-marquee {
-  animation: sticker-marquee 3.2s linear both;
+  animation: sticker-marquee 12s linear both;
 }
 
 @media (prefers-reduced-motion: reduce) {

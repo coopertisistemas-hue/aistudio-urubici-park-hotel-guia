@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import PageHeader from '../../components/feature/PageHeader';
 import PageFooter from '../../components/feature/PageFooter';
 import { useWeather } from '../../hooks/useWeather';
 import { getWeatherIcon, getWeatherDescription, formatDayName } from '../../services/weatherService';
 
 const ClimaPage = () => {
+  const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const { data, loading, error, lastUpdated, refetch } = useWeather();
 
@@ -165,7 +167,7 @@ const ClimaPage = () => {
           className="flex items-center justify-center gap-2 text-white/70 hover:text-white text-sm transition-colors py-2"
         >
           <i className="ri-arrow-left-line" />
-          Voltar para o Guia
+          {t('backToGuide')}
         </Link>
       </div>
 

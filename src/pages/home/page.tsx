@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import PageFooter from '../../components/feature/PageFooter';
 import QuickShortcuts, { type ShortcutItem } from '../../components/QuickShortcuts';
 import TopSticker from '../../components/TopSticker';
@@ -11,8 +12,8 @@ const MAPS_URL = 'https://www.google.com/maps/place/Urubici+Park+Hotel';
 
 const shortcuts: ShortcutItem[] = [
   {
-    icon: 'ri-phone-line',
-    label: 'Chamar Recepção',
+    icon: 'ri-hotel-bed-line',
+    label: 'Sua Estadia',
     to: '/sua-estadia',
     color: 'bg-blue-500/20',
     borderColor: 'border-blue-400/30',
@@ -75,6 +76,7 @@ const reviews = [
 ];
 
 const HomePage = () => {
+  const { t, i18n } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const langMenuRef = useRef<HTMLDivElement>(null);
@@ -98,6 +100,12 @@ const HomePage = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang);
+    i18n.changeLanguage(lang);
+    setLangMenuOpen(false);
+  };
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -160,19 +168,14 @@ const HomePage = () => {
                   aria-label="Alterar idioma do site"
                   aria-expanded={langMenuOpen}
                 >
-                  <span className={`text-xs font-bold ${isScrolled ? 'text-blue-600' : 'text-white'}`}>
-                    {language.split('-')[0].toUpperCase()}
-                  </span>
+                  <i className={`ri-global-line text-lg ${isScrolled ? 'text-blue-600' : 'text-white'}`}></i>
                 </button>
                 {langMenuOpen && (
                   <div className="absolute right-0 top-12 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 py-2 min-w-[140px] z-[60]">
                     {languages.map((lang) => (
                       <button
                         key={lang}
-                        onClick={() => {
-                          setLanguage(lang);
-                          setLangMenuOpen(false);
-                        }}
+                        onClick={() => handleLanguageChange(lang)}
                         className={`w-full text-left px-4 py-2 text-sm hover:bg-white/50 transition-colors ${
                           language === lang 
                             ? 'text-blue-600 font-semibold' 
@@ -195,15 +198,15 @@ const HomePage = () => {
         {/* Top Sticker - Above Hero */}
         <TopSticker messages={stickerMessages} />
 
-        <div className="px-4 mb-3 text-center">
+        <div className="px-4 mt-3 mb-3 text-center">
           <h2 className="text-white font-bold text-3xl mb-2 drop-shadow-2xl leading-tight">
-            Guia do Hóspede
+            {t('heroTitle')}
           </h2>
           <h3 className="text-blue-100 font-bold text-2xl mb-3 drop-shadow-xl">
-            Urubici Park Hotel
+            {t('heroSubtitle')}
           </h3>
           <p className="text-white/90 text-base drop-shadow-lg leading-relaxed max-w-sm mx-auto">
-            Acesse informações importantes para sua estadia.
+            {t('heroDescription')}
           </p>
         </div>
 
@@ -215,11 +218,11 @@ const HomePage = () => {
           <div className="px-4 mb-3">
             <h3 className="text-white font-bold text-sm uppercase tracking-wider text-center flex items-center justify-center gap-2 drop-shadow-md">
               <i className="ri-grid-line text-yellow-400"></i>
-              Guia de Informações
+              {t('guideSectionTitle')}
               <i className="ri-grid-line text-yellow-400"></i>
             </h3>
             <p className="text-white/80 text-xs text-center mt-1 drop-shadow-sm">
-              Explore tudo que Urubici tem a oferecer
+              {t('guideSectionSubtitle')}
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3">

@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, useCallback, useContext, type ReactNode } from 'react';
+import i18n from '../i18n';
 
 export type Language = 'pt-BR' | 'es' | 'en' | 'de';
 
@@ -35,12 +36,14 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem(STORAGE_KEY, lang);
+    i18n.changeLanguage(lang);
   }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored && ['pt-BR', 'es', 'en', 'de'].includes(stored)) {
       setLanguageState(stored as Language);
+      i18n.changeLanguage(stored);
     }
   }, []);
 

@@ -39,7 +39,7 @@ const TopSticker = ({ messages }: TopStickerProps) => {
     
     const interval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % messages.length);
-    }, 4500);
+    }, 12000);
 
     return () => clearInterval(interval);
   }, [messages.length]);

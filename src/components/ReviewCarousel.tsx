@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export interface Review {
   name: string;
@@ -13,6 +14,7 @@ interface ReviewCarouselProps {
 }
 
 const ReviewCarousel = ({ reviews, reviewUrl, mapsUrl }: ReviewCarouselProps) => {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const onTouchStart = (e: React.TouchEvent) => {
@@ -36,10 +38,6 @@ const ReviewCarousel = ({ reviews, reviewUrl, mapsUrl }: ReviewCarouselProps) =>
     }
   };
 
-  useEffect(() => {
-    // Autoplay OFF by default - removed interval
-  }, []);
-
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
   };
@@ -52,9 +50,9 @@ const ReviewCarousel = ({ reviews, reviewUrl, mapsUrl }: ReviewCarouselProps) =>
       <div className="flex flex-col items-center text-center justify-center mb-4">
         <h3 className="text-white font-bold text-lg flex items-center gap-2 drop-shadow-md">
           <i className="ri-google-fill text-white"></i>
-          Avaliações recentes de hóspedes
+          {t('reviewsTitle')}
         </h3>
-        <p className="text-white/60 text-xs mt-1">Opiniões reais de quem já se hospedou conosco</p>
+        <p className="text-white/60 text-xs mt-1">{t('reviewsSubtitle')}</p>
       </div>
 
       {/* Carousel - No card wrapper */}
@@ -111,10 +109,10 @@ const ReviewCarousel = ({ reviews, reviewUrl, mapsUrl }: ReviewCarouselProps) =>
       {/* CTA Text */}
       <div className="text-center mb-4">
         <p className="text-white font-medium text-sm mb-1">
-          Gostou da sua estadia?
+          {t('ctaQuestion')}
         </p>
         <p className="text-white/60 text-xs">
-          Sua avaliação ajuda outros hóspedes.
+          {t('ctaHelpText')}
         </p>
       </div>
 
@@ -125,20 +123,20 @@ const ReviewCarousel = ({ reviews, reviewUrl, mapsUrl }: ReviewCarouselProps) =>
           target="_blank"
           rel="noopener noreferrer"
           className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold text-sm uppercase tracking-wide py-3 px-6 rounded-lg text-center transition-all shadow-lg hover:shadow-xl flex justify-center items-center gap-2"
-          aria-label="Avaliar minha estadia no Google"
+          aria-label={t('btnRateStay')}
         >
           <i className="ri-star-smile-fill"></i>
-          Avaliar minha estadia
+          {t('btnRateStay')}
         </a>
         <a
           href={mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-medium text-sm py-3 px-6 rounded-lg text-center transition-all flex justify-center items-center gap-2"
-          aria-label="Ver todas as avaliações no Google"
+          aria-label={t('btnViewReviews')}
         >
           <i className="ri-map-pin-2-line"></i>
-          Ver avaliações no Google
+          {t('btnViewReviews')}
         </a>
       </div>
     </div>
