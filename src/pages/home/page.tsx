@@ -12,8 +12,8 @@ const MAPS_URL = 'https://www.google.com/maps/place/Urubici+Park+Hotel';
 
 const shortcuts: ShortcutItem[] = [
   {
-    icon: 'ri-hotel-bed-line',
-    label: 'Sua Estadia',
+    icon: 'ri-phone-line',
+    label: 'Chamar Recepção',
     to: '/sua-estadia',
     color: 'bg-blue-500/20',
     borderColor: 'border-blue-400/30',
@@ -233,7 +233,7 @@ const HomePage = () => {
               title="Check-in, Check-out, Wi-Fi e informações essenciais"
             >
               <div className="w-12 h-12 bg-[#24577A]/70 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-[#24577A]/90 transition-colors">
-                <i className="ri-concierge-bell-line text-white text-xl"></i>
+                <i className="ri-hotel-line text-white text-xl"></i>
               </div>
               <h3 className="text-white font-bold text-sm text-center mb-1 drop-shadow-sm">
                 Sua Estadia
@@ -246,7 +246,7 @@ const HomePage = () => {
               </p>
             </Link>
 
-            {/* 2 - Regras do Hotel */}
+            {/* 2 - Regulamentos */}
             <Link
               to="/regras-do-hotel"
               className="bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-2xl hover:scale-105 cursor-pointer group"
@@ -256,7 +256,7 @@ const HomePage = () => {
                 <i className="ri-file-list-3-line text-white text-xl"></i>
               </div>
               <h3 className="text-white font-bold text-sm text-center mb-1 drop-shadow-sm">
-                Regras do Hotel
+                Regulamentos
               </h3>
               <p className="text-[#C4A8E0] text-xs text-center font-medium mb-1">
                 Silêncio | Visitantes | Normas

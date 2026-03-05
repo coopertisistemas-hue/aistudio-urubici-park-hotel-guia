@@ -54,7 +54,7 @@
 }
 
 @keyframes sticker-marquee {
-  0% {
+ 0% {
     transform: translateX(100%);
   }
   100% {
@@ -63,7 +63,7 @@
 }
 
 .animate-sticker-marquee {
-  animation: sticker-marquee 12s linear both;
+  animation: sticker-marquee 22s linear both;
 }
 
 @media (prefers-reduced-motion: reduce) {

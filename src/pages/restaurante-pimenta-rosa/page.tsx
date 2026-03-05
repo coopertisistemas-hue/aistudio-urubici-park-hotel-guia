@@ -9,6 +9,16 @@ const sections: DetailSection[] = [
     text: 'Atendimento para jantar a partir das 18h30. O restaurante não abre às quartas-feiras.',
   },
   {
+    icon: 'ri-book-open-line',
+    title: 'Cardápio',
+    text: 'Pratos à la carte, massas, carnes, trutas e opções especiais da culinária regional. Consulte a recepção ou o WhatsApp do restaurante para o cardápio atualizado.',
+  },
+  {
+    icon: 'ri-wine-line',
+    title: 'Carta de Vinhos',
+    text: 'Selección de vinos nacionales e internacionales para acompañar seus pratos. Consulte as opções disponíveis com nosso atendimento.',
+  },
+  {
     icon: 'ri-hotel-line',
     title: 'Localização',
     text: 'O Restaurante Pimenta Rosa está localizado anexo ao Urubici Park Hotel, com acesso direto a partir da recepção do hotel.',
