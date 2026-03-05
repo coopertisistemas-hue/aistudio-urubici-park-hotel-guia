@@ -27,6 +27,7 @@ const CheckInPage = lazy(() => import('../pages/sua-estadia/check-in/page'));
 const CheckOutPage = lazy(() => import('../pages/sua-estadia/check-out/page'));
 const LateCheckOutPage = lazy(() => import('../pages/sua-estadia/late-check-out/page'));
 const LimpezaEEnxovalPage = lazy(() => import('../pages/sua-estadia/limpeza-e-enxoval/page'));
+const ClimaPage = lazy(() => import('../pages/clima/page'));
 const NotFoundPage = lazy(() => import('../pages/NotFound'));
 
 const routes: RouteObject[] = [
@@ -58,6 +59,7 @@ const routes: RouteObject[] = [
       { path: '/eventos-corporativo', element: <EventosCorporativoPage /> },
       { path: '/links-uteis', element: <LinksUteisPage /> },
       { path: '/links-uteis/localizacao', element: <LocalizacaoPage /> },
+      { path: '/clima', element: <ClimaPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

@@ -112,43 +112,86 @@ const HomePage = () => {
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-xl">
             <div
               className="flex items-center justify-center gap-2 mb-4"
-              aria-label="ATALHOS DISPONÍVEIS"
+              aria-label="ATALHOS RÁPIDOS"
             >
               <i className="ri-flashlight-fill text-yellow-400 text-lg drop-shadow-sm"></i>
               <h3 className="text-white/80 font-semibold text-xs uppercase tracking-widest drop-shadow-sm">
-                ATALHOS DISPONÍVEIS
+                ATALHOS RÁPIDOS
               </h3>
             </div>
-            <div className="grid grid-cols-5 gap-2 border-box">
-              <Link to="/cafe-gastronomia" className="flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 p-1.5 rounded-xl transition-all cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-400/30 group-hover:scale-110 transition-transform">
-                  <i className="ri-customer-service-2-line text-blue-300 text-lg"></i>
+            <div className="grid grid-cols-6 gap-2">
+              {/* Chamar Recepção */}
+              <Link 
+                to="/sua-estadia" 
+                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                title="Chamar Recepção"
+              >
+                <div className="w-11 h-11 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-blue-500/20 transition-all duration-300 animate-pulse-slow">
+                  <i className="ri-phone-line text-blue-300 text-lg"></i>
                 </div>
-                <span className="text-white/80 text-[10px] uppercase font-semibold">Recepção</span>
+                <span className="sr-only">Chamar Recepção</span>
               </Link>
-              <Link to="/sua-estadia/wi-fi" className="flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 p-1.5 rounded-xl transition-all cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+
+              {/* Wi-Fi */}
+              <Link 
+                to="/sua-estadia/wi-fi" 
+                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                title="Wi-Fi"
+              >
+                <div className="w-11 h-11 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-purple-500/20 transition-all duration-300 animate-pulse-slow">
                   <i className="ri-wifi-line text-purple-300 text-lg"></i>
                 </div>
-                <span className="text-white/80 text-[10px] uppercase font-semibold">Wi-Fi</span>
+                <span className="sr-only">Wi-Fi</span>
               </Link>
-              <Link to="/cafe-gastronomia/cafe-da-manha" className="flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 p-1.5 rounded-xl transition-all cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center border border-orange-400/30 group-hover:scale-110 transition-transform">
+
+              {/* Café da Manhã */}
+              <Link 
+                to="/cafe-gastronomia/cafe-da-manha" 
+                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                title="Café da Manhã"
+              >
+                <div className="w-11 h-11 rounded-full bg-orange-500/20 flex items-center justify-center border border-orange-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-orange-500/20 transition-all duration-300 animate-pulse-slow">
                   <i className="ri-cup-line text-orange-300 text-lg"></i>
                 </div>
-                <span className="text-white/80 text-[10px] uppercase font-semibold">Café</span>
+                <span className="sr-only">Café da Manhã</span>
               </Link>
-              <Link to="/sua-estadia/check-out" className="flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 p-1.5 rounded-xl transition-all cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-teal-500/20 flex items-center justify-center border border-teal-400/30 group-hover:scale-110 transition-transform">
+
+              {/* Check-out */}
+              <Link 
+                to="/sua-estadia/check-out" 
+                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                title="Check-out"
+              >
+                <div className="w-11 h-11 rounded-full bg-teal-500/20 flex items-center justify-center border border-teal-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-teal-500/20 transition-all duration-300 animate-pulse-slow">
                   <i className="ri-door-open-line text-teal-300 text-lg"></i>
                 </div>
-                <span className="text-white/80 text-[10px] uppercase font-semibold">Check-out</span>
+                <span className="sr-only">Check-out</span>
               </Link>
-              <a href="PASTE_UPH_GOOGLE_REVIEW_LINK_HERE" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 p-1.5 rounded-xl transition-all cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center border border-yellow-400/30 group-hover:scale-110 transition-transform">
+
+              {/* Clima */}
+              <Link 
+                to="/clima" 
+                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                title="Clima"
+              >
+                <div className="w-11 h-11 rounded-full bg-cyan-500/20 flex items-center justify-center border border-cyan-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-cyan-500/20 transition-all duration-300 animate-pulse-slow">
+                  <i className="ri-sun-line text-cyan-300 text-lg"></i>
+                </div>
+                <span className="sr-only">Clima</span>
+              </Link>
+
+              {/* Avaliar no Google */}
+              <a 
+                href="https://www.google.com/search?q=Urubici+Park+Hotel+avaliacoes" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                title="Avaliar no Google"
+              >
+                <div className="w-11 h-11 rounded-full bg-yellow-500/20 flex items-center justify-center border border-yellow-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-yellow-500/20 transition-all duration-300 animate-pulse-slow">
                   <i className="ri-star-line text-yellow-300 text-lg"></i>
                 </div>
-                <span className="text-white/80 text-[10px] uppercase font-semibold">Avaliar</span>
+                <span className="sr-only">Avaliar no Google</span>
               </a>
             </div>
           </div>
