@@ -144,7 +144,7 @@ const DetailLayout = ({
 
         {/* After sections - for extra content like menu, CTAs */}
         {afterSections && (
-          <div className="mt-4">
+          <div className="px-4 mt-4">
             {afterSections}
           </div>
         )}
