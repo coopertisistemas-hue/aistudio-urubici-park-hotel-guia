@@ -1,5 +1,6 @@
-
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage, languageLabels, type Language } from '../../contexts/LanguageContext';
 
 interface PageHeaderProps {
   isScrolled: boolean;
@@ -8,6 +9,22 @@ interface PageHeaderProps {
 }
 
 const PageHeader = ({ isScrolled, backTo, backLabel = 'Voltar' }: PageHeaderProps) => {
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { language, setLanguage } = useLanguage();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const languages: Language[] = ['pt-BR', 'es', 'en', 'de'];
+
   const iconClass = `w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all ${
     isScrolled
       ? 'bg-blue-50 hover:bg-blue-100 border border-blue-200'
@@ -67,20 +84,54 @@ const PageHeader = ({ isScrolled, backTo, backLabel = 'Voltar' }: PageHeaderProp
 
           {/* Right: Globe + Search + Back */}
           <div className="flex items-center gap-2">
-            <button
-              className={iconClass}
-              title="Alterar idioma"
-              aria-label="Alterar idioma do site"
-            >
-              <i className={`ri-global-line ${iClass}`}></i>
-            </button>
-            <button
-              className={iconClass}
-              title="Buscar"
-              aria-label="Abrir busca"
-            >
-              <i className={`ri-search-line ${iClass}`}></i>
-            </button>
+            {/* Language Switcher */}
+            <div className="relative" ref={menuRef}>
+              <button
+                className={iconClass}
+                onClick={() => setLangMenuOpen(!langMenuOpen)}
+                title="Alterar idioma"
+                aria-label="Alterar idioma do site"
+                aria-expanded={langMenuOpen}
+              >
+                <span className={`${iClass} text-xs font-bold`}>
+                  {language.split('-')[0].toUpperCase()}
+                </span>
+              </button>
+              {langMenuOpen && (
+                <div className="absolute right-0 top-12 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 py-2 min-w-[140px] z-50">
+                  {languages.map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => {
+                        setLanguage(lang);
+                        setLangMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-white/50 transition-colors ${
+                        language === lang 
+                          ? 'text-blue-600 font-semibold' 
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {languageLabels[lang]}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Search - Coming Soon tooltip */}
+            <div className="relative group">
+              <button
+                className={iconClass}
+                title="Em breve: Buscar no guia"
+                aria-label="Buscar (em breve)"
+              >
+                <i className={`ri-search-line ${iClass}`}></i>
+              </button>
+              <div className="absolute right-0 top-12 bg-gray-900/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                Em breve: Buscar no guia
+              </div>
+            </div>
             <Link
               to={backTo}
               className={`${iconClass} hover:scale-105`}

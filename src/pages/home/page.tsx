@@ -1,6 +1,77 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageFooter from '../../components/feature/PageFooter';
+import QuickShortcuts, { type ShortcutItem } from '../../components/QuickShortcuts';
+import TopSticker from '../../components/TopSticker';
+import ReviewCarousel from '../../components/ReviewCarousel';
+
+const REVIEW_URL = 'https://www.google.com/search?q=Urubici+Park+Hotel+avaliacoes';
+const MAPS_URL = 'https://www.google.com/maps/place/Urubici+Park+Hotel';
+
+const shortcuts: ShortcutItem[] = [
+  {
+    icon: 'ri-phone-line',
+    label: 'Chamar Recepção',
+    to: '/sua-estadia',
+    color: 'bg-blue-500/20',
+    borderColor: 'border-blue-400/30',
+    iconColor: 'text-blue-300',
+  },
+  {
+    icon: 'ri-wifi-line',
+    label: 'Wi-Fi',
+    to: '/sua-estadia/wi-fi',
+    color: 'bg-purple-500/20',
+    borderColor: 'border-purple-400/30',
+    iconColor: 'text-purple-300',
+  },
+  {
+    icon: 'ri-cup-line',
+    label: 'Café da Manhã',
+    to: '/cafe-gastronomia/cafe-da-manha',
+    color: 'bg-orange-500/20',
+    borderColor: 'border-orange-400/30',
+    iconColor: 'text-orange-300',
+  },
+  {
+    icon: 'ri-restaurant-line',
+    label: 'Restaurante',
+    to: '/cafe-gastronomia',
+    color: 'bg-red-500/20',
+    borderColor: 'border-red-400/30',
+    iconColor: 'text-red-300',
+  },
+  {
+    icon: 'ri-sun-line',
+    label: 'Clima',
+    to: '/clima',
+    color: 'bg-cyan-500/20',
+    borderColor: 'border-cyan-400/30',
+    iconColor: 'text-cyan-300',
+  },
+  {
+    icon: 'ri-star-line',
+    label: 'Avaliações',
+    href: REVIEW_URL,
+    color: 'bg-yellow-500/20',
+    borderColor: 'border-yellow-400/30',
+    iconColor: 'text-yellow-300',
+  },
+];
+
+const stickerMessages = [
+  { icon: '☕', text: 'Café da manhã até 10:00' },
+  { icon: '🍷', text: 'Carta de vinhos disponível no restaurante' },
+  { icon: '🎵', text: 'Música ao vivo hoje às 20h' },
+];
+
+const reviews = [
+  { name: 'Mariana S.', rating: '★★★★★', text: 'Atendimento excelente, quarto impecável e café da manhã muito bem servido. Voltaremos!' },
+  { name: 'Carlos A.', rating: '★★★★★', text: 'Localização perfeita e equipe muito atenciosa. Experiência premium do início ao fim.' },
+  { name: 'Fernanda R.', rating: '★★★★☆', text: 'Tudo ótimo. Sugestão: mais opções sem lactose no café. No geral, excelente!' },
+  { name: 'João P.', rating: '★★★★★', text: 'Hotel lindo, cama confortável e silêncio à noite. Recomendo muito.' },
+  { name: 'Patrícia M.', rating: '★★★★★', text: 'Check-in rápido, recepção prestativa e estrutura impecável. Nota 10.' },
+];
 
 const HomePage = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -95,11 +166,14 @@ const HomePage = () => {
 
       {/* Hero Section */}
       <div className="relative z-10 max-w-md mx-auto pt-8">
-        <div className="px-4 mb-8 text-center">
-          <h2 className="text-white font-bold text-3xl mb-3 drop-shadow-2xl leading-tight">
+        {/* Top Sticker - Above Hero */}
+        <TopSticker messages={stickerMessages} />
+
+        <div className="px-4 mb-3 text-center">
+          <h2 className="text-white font-bold text-3xl mb-2 drop-shadow-2xl leading-tight">
             Guia do Hóspede
           </h2>
-          <h3 className="text-blue-100 font-bold text-2xl mb-4 drop-shadow-xl">
+          <h3 className="text-blue-100 font-bold text-2xl mb-3 drop-shadow-xl">
             Urubici Park Hotel
           </h3>
           <p className="text-white/90 text-base drop-shadow-lg leading-relaxed max-w-sm mx-auto">
@@ -107,152 +181,12 @@ const HomePage = () => {
           </p>
         </div>
 
-        {/* Quick Shortcuts */}
-        <div className="px-4 mb-8">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-xl">
-            <div
-              className="flex items-center justify-center gap-2 mb-4"
-              aria-label="ATALHOS RÁPIDOS"
-            >
-              <i className="ri-flashlight-fill text-yellow-400 text-lg drop-shadow-sm"></i>
-              <h3 className="text-white/80 font-semibold text-xs uppercase tracking-widest drop-shadow-sm">
-                ATALHOS RÁPIDOS
-              </h3>
-            </div>
-            <div className="grid grid-cols-6 gap-2">
-              {/* Chamar Recepção */}
-              <Link 
-                to="/sua-estadia" 
-                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
-                title="Chamar Recepção"
-              >
-                <div className="w-11 h-11 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-blue-500/20 transition-all duration-300 animate-pulse-slow">
-                  <i className="ri-phone-line text-blue-300 text-lg"></i>
-                </div>
-                <span className="sr-only">Chamar Recepção</span>
-              </Link>
+        {/* Quick Shortcuts - Direct on hero area */}
+        <QuickShortcuts items={shortcuts} />
 
-              {/* Wi-Fi */}
-              <Link 
-                to="/sua-estadia/wi-fi" 
-                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
-                title="Wi-Fi"
-              >
-                <div className="w-11 h-11 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-purple-500/20 transition-all duration-300 animate-pulse-slow">
-                  <i className="ri-wifi-line text-purple-300 text-lg"></i>
-                </div>
-                <span className="sr-only">Wi-Fi</span>
-              </Link>
-
-              {/* Café da Manhã */}
-              <Link 
-                to="/cafe-gastronomia/cafe-da-manha" 
-                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
-                title="Café da Manhã"
-              >
-                <div className="w-11 h-11 rounded-full bg-orange-500/20 flex items-center justify-center border border-orange-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-orange-500/20 transition-all duration-300 animate-pulse-slow">
-                  <i className="ri-cup-line text-orange-300 text-lg"></i>
-                </div>
-                <span className="sr-only">Café da Manhã</span>
-              </Link>
-
-              {/* Check-out */}
-              <Link 
-                to="/sua-estadia/check-out" 
-                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
-                title="Check-out"
-              >
-                <div className="w-11 h-11 rounded-full bg-teal-500/20 flex items-center justify-center border border-teal-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-teal-500/20 transition-all duration-300 animate-pulse-slow">
-                  <i className="ri-door-open-line text-teal-300 text-lg"></i>
-                </div>
-                <span className="sr-only">Check-out</span>
-              </Link>
-
-              {/* Clima */}
-              <Link 
-                to="/clima" 
-                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
-                title="Clima"
-              >
-                <div className="w-11 h-11 rounded-full bg-cyan-500/20 flex items-center justify-center border border-cyan-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-cyan-500/20 transition-all duration-300 animate-pulse-slow">
-                  <i className="ri-sun-line text-cyan-300 text-lg"></i>
-                </div>
-                <span className="sr-only">Clima</span>
-              </Link>
-
-              {/* Avaliar no Google */}
-              <a 
-                href="https://www.google.com/search?q=Urubici+Park+Hotel+avaliacoes" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="relative flex flex-col items-center justify-center p-2 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer group"
-                title="Avaliar no Google"
-              >
-                <div className="w-11 h-11 rounded-full bg-yellow-500/20 flex items-center justify-center border border-yellow-400/30 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-yellow-500/20 transition-all duration-300 animate-pulse-slow">
-                  <i className="ri-star-line text-yellow-300 text-lg"></i>
-                </div>
-                <span className="sr-only">Avaliar no Google</span>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Avaliações no Google Section */}
-        <div className="px-4 mb-8">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 shadow-xl">
-            <div className="flex flex-col items-center text-center justify-center mb-5">
-              <h3 className="text-white font-bold text-lg flex items-center gap-2 drop-shadow-md">
-                <i className="ri-google-fill text-white"></i>
-                Avaliações no Google
-              </h3>
-              <p className="text-white/60 text-xs mt-1">Opiniões recentes de hóspedes</p>
-            </div>
-
-            <div className="flex flex-col gap-3 mb-5">
-              {[
-                { name: 'Mariana S.', rating: '★★★★★', date: 'Fev/2026', text: 'Atendimento excelente, quarto impecável e café da manhã muito bem servido. Voltaremos!' },
-                { name: 'Carlos A.', rating: '★★★★★', date: 'Jan/2026', text: 'Localização perfeita e equipe muito atenciosa. Experiência premium do início ao fim.' },
-                { name: 'Fernanda R.', rating: '★★★★☆', date: 'Jan/2026', text: 'Tudo ótimo. Sugestão: mais opções sem lactose no café. No geral, excelente!' },
-                { name: 'João P.', rating: '★★★★★', date: 'Dez/2025', text: 'Hotel lindo, cama confortável e silêncio à noite. Recomendo muito.' },
-                { name: 'Patrícia M.', rating: '★★★★★', date: 'Dez/2025', text: 'Check-in rápido, recepção prestativa e estrutura impecável. Nota 10.' },
-              ].map((review, i) => (
-                <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-3">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-white font-semibold text-sm drop-shadow-sm">{review.name}</span>
-                    <span className="text-yellow-400 text-xs tracking-widest">{review.rating}</span>
-                  </div>
-                  <p className="text-white/80 text-xs leading-relaxed italic mb-1.5">"{review.text}"</p>
-                  <p className="text-white/40 text-[10px]">{review.date}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <a
-                href="PASTE_UPH_GOOGLE_REVIEW_LINK_HERE"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white hover:bg-gray-100 text-blue-900 font-bold text-xs uppercase tracking-wide py-2.5 rounded-lg text-center transition-colors shadow-md flex justify-center items-center gap-1.5"
-              >
-                <i className="ri-star-smile-fill text-sm"></i>
-                Avaliar no Google
-              </a>
-              <a
-                href="PASTE_UPH_GOOGLE_MAPS_LINK_HERE"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white/15 hover:bg-white/25 border border-white/20 text-white font-bold text-xs uppercase tracking-wide py-2.5 rounded-lg text-center transition-colors shadow-md flex justify-center items-center gap-1.5"
-              >
-                <i className="ri-map-pin-2-line text-sm"></i>
-                Ver no Google
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Content Section */}
+        {/* Guide Cards */}
         <div className="px-4 mb-6">
-          <div className="px-4 mb-4">
+          <div className="px-4 mb-3">
             <h3 className="text-white font-bold text-sm uppercase tracking-wider text-center flex items-center justify-center gap-2 drop-shadow-md">
               <i className="ri-grid-line text-yellow-400"></i>
               Guia de Informações
@@ -266,7 +200,7 @@ const HomePage = () => {
             {/* 1 - Sua Estadia */}
             <Link
               to="/sua-estadia"
-              className="bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-2xl hover:scale-105 cursor-pointer group"
+              className="bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer group"
               title="Check-in, Check-out, Wi-Fi e informações essenciais"
             >
               <div className="w-12 h-12 bg-[#24577A]/70 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-[#24577A]/90 transition-colors">
@@ -384,6 +318,13 @@ const HomePage = () => {
             </Link>
           </div>
         </div>
+
+        {/* Review Carousel */}
+        <ReviewCarousel 
+          reviews={reviews} 
+          reviewUrl={REVIEW_URL}
+          mapsUrl={MAPS_URL}
+        />
 
         {/* Scroll to Top Button */}
         <div className="fixed bottom-6 left-4 z-20">

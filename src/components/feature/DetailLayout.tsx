@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PageHeader from './PageHeader';
 import PageFooter from './PageFooter';
 
@@ -146,6 +147,17 @@ const DetailLayout = ({
         >
           <i className="ri-arrow-up-line text-white text-lg" />
         </button>
+      </div>
+
+      {/* ── Back to Home Link ────────────────────────────────────────────── */}
+      <div className="px-4 mb-6">
+        <Link
+          to="/"
+          className="flex items-center justify-center gap-2 text-white/70 hover:text-white text-sm transition-colors py-2"
+        >
+          <i className="ri-arrow-left-line" />
+          Voltar para o Guia
+        </Link>
       </div>
 
       {/* ── Footer ─────────────────────────────────────────────────────────── */}

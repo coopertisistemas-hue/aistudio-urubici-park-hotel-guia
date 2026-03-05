@@ -25,7 +25,7 @@ const LONGITUDE = -49.592;
 
 export async function getWeather(): Promise<WeatherData> {
   const response = await fetch(
-    `${API_URL}?latitude=${LATITUDE}&longitude=${LONGITUDE}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=4`
+    `${API_URL}?latitude=${LATITUDE}&longitude=${LONGITUDE}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=America/Sao_Paulo&forecast_days=4`
   );
 
   if (!response.ok) {
@@ -44,7 +44,7 @@ export async function getWeather(): Promise<WeatherData> {
 
   return {
     current: {
-      temperature: data.current_weather.temperature,
+      temperature: Math.round(data.current_weather.temperature),
       windSpeed: data.current_weather.windspeed,
       weatherCode: data.current_weather.weathercode,
     },

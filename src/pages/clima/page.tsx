@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PageHeader from '../../components/feature/PageHeader';
 import PageFooter from '../../components/feature/PageFooter';
 import { useWeather } from '../../hooks/useWeather';
@@ -67,30 +68,30 @@ const ClimaPage = () => {
             </div>
           ) : data && today ? (
             <>
-              {/* Hoje */}
+              {/* Agora */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/25 shadow-2xl p-6">
                 <h3 className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <i className="ri-sun-line text-yellow-400 text-sm" />
-                  Hoje
+                  <i className="ri-time-line text-yellow-400 text-sm" />
+                  Agora
                 </h3>
                 
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
                     <span className="text-5xl drop-shadow-lg">
-                      {getWeatherIcon(today.weatherCode)}
+                      {getWeatherIcon(data.current.weatherCode)}
                     </span>
                     <div>
                       <div className="text-4xl font-bold text-white">
-                        {today.maxTemp}°
+                        {data.current.temperature}°
                       </div>
                       <div className="text-white/60 text-sm">
-                        Mín: {today.minTemp}°
+                        Máx: {today.maxTemp}° / Mín: {today.minTemp}°
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-white/90 text-sm">
-                      {getWeatherDescription(today.weatherCode)}
+                      {getWeatherDescription(data.current.weatherCode)}
                     </p>
                   </div>
                 </div>
@@ -155,6 +156,17 @@ const ClimaPage = () => {
             </>
           ) : null}
         </div>
+      </div>
+
+      {/* Back to Home Link */}
+      <div className="px-4 mb-6">
+        <Link
+          to="/"
+          className="flex items-center justify-center gap-2 text-white/70 hover:text-white text-sm transition-colors py-2"
+        >
+          <i className="ri-arrow-left-line" />
+          Voltar para o Guia
+        </Link>
       </div>
 
       <PageFooter />
