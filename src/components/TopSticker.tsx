@@ -39,7 +39,7 @@ const TopSticker = ({ messages }: TopStickerProps) => {
     
     const interval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % messages.length);
-    }, 4000);
+    }, 4500);
 
     return () => clearInterval(interval);
   }, [messages.length]);
@@ -48,14 +48,15 @@ const TopSticker = ({ messages }: TopStickerProps) => {
 
   const weatherIcon = data?.current ? getWeatherIcon(data.current.weatherCode) : '🌤️';
   const temperature = data?.current?.temperature ?? '--';
+  const currentMessage = messages[messageIndex];
 
   return (
-    <div className="w-full mb-1">
-      <div className="max-w-md mx-auto px-4">
-        <div className="flex items-center justify-between py-1.5 gap-3">
+    <div className="w-full bg-white/5 border-y border-white/10">
+      <div className="max-w-5xl mx-auto px-4">
+        <div className="flex items-center justify-between h-8 gap-4">
           {/* Weather - Fixed on left */}
           <div className="flex items-center gap-1.5 flex-shrink-0">
-            <span className={`text-lg ${!isReducedMotion ? 'animate-breathe' : ''}`}>
+            <span className={`text-base ${!isReducedMotion ? 'animate-breathe' : ''}`}>
               {weatherIcon}
             </span>
             <span className="text-white/90 text-xs font-medium whitespace-nowrap">
@@ -63,27 +64,23 @@ const TopSticker = ({ messages }: TopStickerProps) => {
             </span>
           </div>
 
-          {/* Rotating Message - Right side */}
-          <div className="relative min-w-[120px] h-5 flex items-center overflow-hidden">
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`absolute flex items-center gap-1 transition-opacity duration-300 ${
-                  isReducedMotion ? 'static' : 'absolute'
-                }`}
-                style={{
-                  opacity: idx === messageIndex && !isReducedMotion ? 1 : isReducedMotion && idx === 0 ? 1 : 0,
-                  transform: isReducedMotion 
-                    ? 'none' 
-                    : idx === messageIndex 
-                      ? 'translateY(0)' 
-                      : 'translateY(10px)',
-                }}
+          {/* Separator */}
+          <span className="text-white/30 text-xs flex-shrink-0">•</span>
+
+          {/* Rotating Message - Horizontal marquee */}
+          <div className="flex-1 overflow-hidden relative h-5 flex items-center">
+            {isReducedMotion ? (
+              <span className="text-white/70 text-xs whitespace-nowrap">
+                {currentMessage.icon} {currentMessage.text}
+              </span>
+            ) : (
+              <span 
+                key={messageIndex}
+                className="text-white/70 text-xs whitespace-nowrap animate-sticker-marquee"
               >
-                <span className="text-white/70 text-xs whitespace-nowrap">{msg.icon}</span>
-                <span className="text-white/70 text-xs whitespace-nowrap">{msg.text}</span>
-              </div>
-            ))}
+                {currentMessage.icon} {currentMessage.text}
+              </span>
+            )}
           </div>
         </div>
       </div>

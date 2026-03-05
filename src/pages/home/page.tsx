@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import PageFooter from '../../components/feature/PageFooter';
 import QuickShortcuts, { type ShortcutItem } from '../../components/QuickShortcuts';
 import TopSticker from '../../components/TopSticker';
 import ReviewCarousel from '../../components/ReviewCarousel';
+import { useLanguage, languageLabels, type Language } from '../../contexts/LanguageContext';
 
 const REVIEW_URL = 'https://www.google.com/search?q=Urubici+Park+Hotel+avaliacoes';
 const MAPS_URL = 'https://www.google.com/maps/place/Urubici+Park+Hotel';
@@ -75,6 +76,10 @@ const reviews = [
 
 const HomePage = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement>(null);
+  const { language, setLanguage } = useLanguage();
+  const languages: Language[] = ['pt-BR', 'es', 'en', 'de'];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,6 +87,16 @@ const HomePage = () => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
+        setLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const scrollToTop = () => {
@@ -92,7 +107,7 @@ const HomePage = () => {
     <div className="min-h-screen relative overflow-hidden">
       {/* Header */}
       <header
-        className={`w-full py-6 px-4 relative transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 right-0 z-50 bg-white shadow-lg' : ''
+        className={`w-full py-4 px-4 relative transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 right-0 z-50 bg-white shadow-lg' : ''
           }`}
       >
         <div className="max-w-md mx-auto">
@@ -133,39 +148,50 @@ const HomePage = () => {
               </button>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                className={`w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all ${isScrolled
-                    ? 'bg-blue-50 hover:bg-blue-100 border border-blue-200'
-                    : 'bg-white/10 hover:bg-white/20 border border-white/20'
-                  }`}
-                title="Alterar idioma"
-                aria-label="Alterar idioma do site"
-              >
-                <i
-                  className={`ri-global-line text-lg ${isScrolled ? 'text-blue-600' : 'text-white'
+              {/* Language Switcher */}
+              <div className="relative" ref={langMenuRef}>
+                <button
+                  className={`w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all ${isScrolled
+                      ? 'bg-blue-50 hover:bg-blue-100 border border-blue-200'
+                      : 'bg-white/10 hover:bg-white/20 border border-white/20'
                     }`}
-                ></i>
-              </button>
-              <button
-                className={`w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all ${isScrolled
-                    ? 'bg-blue-50 hover:bg-blue-100 border border-blue-200'
-                    : 'bg-white/10 hover:bg-white/20 border border-white/20'
-                  }`}
-                title="Buscar"
-                aria-label="Abrir busca"
-              >
-                <i
-                  className={`ri-search-line text-lg ${isScrolled ? 'text-blue-600' : 'text-white'
-                    }`}
-                ></i>
-              </button>
+                  onClick={() => setLangMenuOpen(!langMenuOpen)}
+                  title="Alterar idioma"
+                  aria-label="Alterar idioma do site"
+                  aria-expanded={langMenuOpen}
+                >
+                  <span className={`text-xs font-bold ${isScrolled ? 'text-blue-600' : 'text-white'}`}>
+                    {language.split('-')[0].toUpperCase()}
+                  </span>
+                </button>
+                {langMenuOpen && (
+                  <div className="absolute right-0 top-12 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 py-2 min-w-[140px] z-[60]">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang}
+                        onClick={() => {
+                          setLanguage(lang);
+                          setLangMenuOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-white/50 transition-colors ${
+                          language === lang 
+                            ? 'text-blue-600 font-semibold' 
+                            : 'text-gray-700'
+                        }`}
+                      >
+                        {languageLabels[lang]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <div className="relative z-10 max-w-md mx-auto pt-8">
+      <div className="relative z-10 max-w-md mx-auto pt-4">
         {/* Top Sticker - Above Hero */}
         <TopSticker messages={stickerMessages} />
 

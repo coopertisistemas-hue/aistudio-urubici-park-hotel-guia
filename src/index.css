@@ -52,3 +52,22 @@
 .ticker-content:hover {
   animation-play-state: paused;
 }
+
+@keyframes sticker-marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-sticker-marquee {
+  animation: sticker-marquee 3.2s linear both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-sticker-marquee {
+    animation: none;
+  }
+}

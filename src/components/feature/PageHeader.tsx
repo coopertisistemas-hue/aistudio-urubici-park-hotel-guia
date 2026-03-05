@@ -82,7 +82,7 @@ const PageHeader = ({ isScrolled, backTo, backLabel = 'Voltar' }: PageHeaderProp
             </Link>
           </div>
 
-          {/* Right: Globe + Search + Back */}
+          {/* Right: Globe + Back */}
           <div className="flex items-center gap-2">
             {/* Language Switcher */}
             <div className="relative" ref={menuRef}>
@@ -119,19 +119,6 @@ const PageHeader = ({ isScrolled, backTo, backLabel = 'Voltar' }: PageHeaderProp
               )}
             </div>
 
-            {/* Search - Coming Soon tooltip */}
-            <div className="relative group">
-              <button
-                className={iconClass}
-                title="Em breve: Buscar no guia"
-                aria-label="Buscar (em breve)"
-              >
-                <i className={`ri-search-line ${iClass}`}></i>
-              </button>
-              <div className="absolute right-0 top-12 bg-gray-900/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                Em breve: Buscar no guia
-              </div>
-            </div>
             <Link
               to={backTo}
               className={`${iconClass} hover:scale-105`}
