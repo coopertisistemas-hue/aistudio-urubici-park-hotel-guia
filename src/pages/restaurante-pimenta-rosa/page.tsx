@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import DetailLayout, { type DetailSection } from '../../components/feature/DetailLayout';
 
 const sections: DetailSection[] = [
@@ -49,59 +47,78 @@ const MenuSection = () => {
         'Doces tradicionais',
       ],
     },
-    {
-      title: 'Carta de Vinhos',
-      icon: '🍷',
-      items: [
-        'Vinhos tintos selecionados',
-        'Espumantes nacionais',
-        'Rótulos da Serra Catarinense',
-        'Sugestões de harmonização',
-      ],
-    },
   ];
 
   return (
-    <div className="max-w-md mx-auto px-4 w-full relative z-10">
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/25 shadow-2xl overflow-hidden">
-        <div className="px-5 pt-5 pb-3">
-          <h3 className="text-white/60 text-xs font-semibold uppercase tracking-widest flex items-center gap-2">
-            <i className="ri-book-open-line text-yellow-400 text-sm" />
-            Cardápio
-          </h3>
-        </div>
+    <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/25 shadow-2xl overflow-hidden">
+      <div className="px-5 pt-5 pb-3">
+        <h3 className="text-white/60 text-xs font-semibold uppercase tracking-widest flex items-center gap-2">
+          <i className="ri-book-open-line text-yellow-400 text-sm" />
+          Cardápio
+        </h3>
+      </div>
 
-        {menuCategories.map((category, catIndex) => (
-          <div key={category.title}>
-            {catIndex > 0 && <div className="mx-5 border-t border-white/10" />}
-            <div className="px-5 py-4">
-              <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                <span>{category.icon}</span>
-                {category.title}
-              </h4>
-              <ul className="space-y-1.5">
-                {category.items.map((item, itemIndex) => (
-                  <li key={itemIndex} className="text-white/70 text-xs flex items-start gap-2">
-                    <span className="text-yellow-400 mt-0.5">•</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {menuCategories.map((category, catIndex) => (
+        <div key={category.title}>
+          {catIndex > 0 && <div className="mx-5 border-t border-white/10" />}
+          <div className="px-5 py-4">
+            <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+              <span>{category.icon}</span>
+              {category.title}
+            </h4>
+            <ul className="space-y-1.5">
+              {category.items.map((item, itemIndex) => (
+                <li key={itemIndex} className="text-white/70 text-xs flex items-start gap-2">
+                  <span className="text-yellow-400 mt-0.5">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-        ))}
+        </div>
+      ))}
 
-        <div className="h-3" />
+      <div className="h-3" />
+    </div>
+  );
+};
+
+const WineSection = () => {
+  const wineItems = [
+    'Vinhos tintos selecionados',
+    'Espumantes nacionais',
+    'Rótulos da Serra Catarinense',
+    'Sugestões de harmonização',
+  ];
+
+  return (
+    <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/25 shadow-2xl overflow-hidden mt-4">
+      <div className="px-5 pt-5 pb-3">
+        <h3 className="text-white/60 text-xs font-semibold uppercase tracking-widest flex items-center gap-2">
+          <i className="ri-wine-line text-yellow-400 text-sm" />
+          Carta de Vinhos
+        </h3>
+      </div>
+
+      <div className="px-5 pb-5">
+        <ul className="space-y-1.5">
+          {wineItems.map((item, itemIndex) => (
+            <li key={itemIndex} className="text-white/70 text-xs flex items-start gap-2">
+              <span className="text-yellow-400 mt-0.5">•</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 };
 
-const CTAsAndDisclaimer = () => {
-  const whatsappMessage = encodeURIComponent('Olá! Gostaria de fazer uma reserva no Restaurante Pimenta Rosa.');
+const CTASection = () => {
+  const whatsappMessage = encodeURIComponent('Olá! Gostaria de reservar uma mesa no Restaurante Pimenta Rosa.');
 
   return (
-    <div className="max-w-md mx-auto px-4 w-full relative z-10 pb-8 flex flex-col gap-4">
+    <div className="space-y-4 mt-4">
       {/* WhatsApp CTA */}
       <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-xl p-5 shadow-lg flex flex-col gap-4">
         <div className="flex items-center gap-3">
@@ -157,46 +174,26 @@ const CTAsAndDisclaimer = () => {
 };
 
 const RestaurantePimentaRosaPage = () => {
-  const [footerMountNode, setFooterMountNode] = useState<Element | null>(null);
-  const [menuMountNode, setMenuMountNode] = useState<Element | null>(null);
-
-  useEffect(() => {
-    const footer = document.querySelector('footer');
-    if (footer && footer.parentElement) {
-      const container = document.createElement('div');
-      container.className = '-mt-6';
-      footer.parentElement.insertBefore(container, footer);
-      setFooterMountNode(container);
-    }
-  }, []);
-
-  useEffect(() => {
-    const content = document.querySelector('.max-w-md.mx-auto');
-    if (content && !menuMountNode) {
-      const menuContainer = document.createElement('div');
-      menuContainer.className = 'mb-6';
-      content.parentNode?.insertBefore(menuContainer, content.nextSibling);
-      setMenuMountNode(menuContainer);
-    }
-  }, []);
-
   return (
-    <>
-      <DetailLayout
-        title="Restaurante Pimenta Rosa"
-        subtitle="Café & Gastronomia"
-        description="Restaurante localizado anexo ao Urubici Park Hotel, com pratos à la carte, massas, carnes, trutas e opções especiais da culinária regional."
-        sections={sections}
-        backTo="/cafe-gastronomia"
-        backLabel="Voltar para Café & Gastronomia"
-        heroIcon="ri-restaurant-2-line"
-        heroIconColor="#D07A2A"
-        containerLabel="Informações do Restaurante"
-        containerLabelIcon="ri-store-2-line"
-      />
-      {menuMountNode && createPortal(<MenuSection />, menuMountNode)}
-      {footerMountNode && createPortal(<CTAsAndDisclaimer />, footerMountNode)}
-    </>
+    <DetailLayout
+      title="Restaurante Pimenta Rosa"
+      subtitle="Café & Gastronomia"
+      description="Restaurante localizado anexo ao Urubici Park Hotel, com pratos à la carte, massas, carnes, trutas e opções especiais da culinária regional."
+      sections={sections}
+      backTo="/cafe-gastronomia"
+      backLabel="Voltar para Café & Gastronomia"
+      heroIcon="ri-restaurant-2-line"
+      heroIconColor="#D07A2A"
+      containerLabel="Informações do Restaurante"
+      containerLabelIcon="ri-store-2-line"
+      afterSections={
+        <>
+          <MenuSection />
+          <WineSection />
+          <CTASection />
+        </>
+      }
+    />
   );
 };
 

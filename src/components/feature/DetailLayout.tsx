@@ -35,6 +35,8 @@ export interface DetailLayoutProps {
   containerLabel?: string;
   /** Optional Remix-icon class for the container label line */
   containerLabelIcon?: string;
+  /** Optional content to render after sections, before the back link */
+  afterSections?: React.ReactNode;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -50,6 +52,7 @@ const DetailLayout = ({
   heroIconColor = '#1a5276',
   containerLabel,
   containerLabelIcon = 'ri-article-line',
+  afterSections,
 }: DetailLayoutProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { t } = useTranslation();
@@ -138,6 +141,13 @@ const DetailLayout = ({
             <div className="h-4" />
           </div>
         </div>
+
+        {/* After sections - for extra content like menu, CTAs */}
+        {afterSections && (
+          <div className="mt-4">
+            {afterSections}
+          </div>
+        )}
       </div>
 
       {/* ── Scroll-to-top button ────────────────────────────────────────────── */}
