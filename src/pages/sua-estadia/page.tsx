@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/feature/PageHeader';
 import PageFooter from '../../components/feature/PageFooter';
 import RecepcionModal from '../../components/feature/RecepcionModal';
+import SmokeFreeNotice from '../../components/SmokeFreeNotice';
 
 const subcategories = [
   {
@@ -11,8 +12,8 @@ const subcategories = [
     color: '#24577A',
     accentColor: '#7BB3E0',
     title: 'Check-in',
-    tag: 'A partir das 14h',
-    description: 'A partir das 14h. Apresente documento com foto na recepção.',
+    tag: 'A partir das 15h',
+    description: 'Check-in a partir das 15h. Caso arrive antes, nossa recepção terá prazer em auxiliar enquanto preparamos sua acomodação.',
     isReception: false,
     link: '/sua-estadia/check-in',
   },
@@ -51,8 +52,8 @@ const subcategories = [
     color: '#6B4E8A',
     accentColor: '#C4A8E0',
     title: 'Limpeza & Enxoval',
-    tag: 'Horário operacional',
-    description: 'Limpeza no horário operacional do hotel. Solicitações na recepção.',
+    tag: 'A cada 2 dias',
+    description: 'Para manter o conforto e contribuir com práticas sustentáveis, a troca de roupas de cama e banho é realizada a cada 2 dias durante sua estadia. Se precisar de troca adicional, fale com a recepção.',
     isReception: false,
     link: '/sua-estadia/limpeza-e-enxoval',
   },
@@ -108,6 +109,11 @@ const SuaEstadiaPage = () => {
           <p className="text-white/90 text-base drop-shadow-lg leading-relaxed max-w-sm mx-auto">
             Informações essenciais para uma estadia confortável.
           </p>
+        </div>
+
+        {/* Smoke Free Notice */}
+        <div className="px-4 mb-4">
+          <SmokeFreeNotice />
         </div>
 
         <div className="px-4 mb-6 pt-6">

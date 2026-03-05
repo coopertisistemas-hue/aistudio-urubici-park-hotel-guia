@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import PageHeader from '../../components/feature/PageHeader';
 import PageFooter from '../../components/feature/PageFooter';
 import RecepcionModal from '../../components/feature/RecepcionModal';
+import SmokeFreeNotice from '../../components/SmokeFreeNotice';
 
 const subcategories = [
   {
@@ -94,6 +95,11 @@ const RegrasDoHotelPage = () => {
           <p className="text-white/90 text-base drop-shadow-lg leading-relaxed max-w-sm mx-auto">
             Normas e condutas para uma convivência harmoniosa.
           </p>
+        </div>
+
+        {/* Smoke Free Notice */}
+        <div className="px-4 mb-4">
+          <SmokeFreeNotice />
         </div>
 
         <div className="px-4 mb-6 pt-6">

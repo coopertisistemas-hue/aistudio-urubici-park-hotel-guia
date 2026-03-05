@@ -1,26 +1,36 @@
 
-import { useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const VideoBackground = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const handleReady = () => {
-      video.style.opacity = '1';
+      setVideoReady(true);
     };
 
     if (video.readyState >= 4) {
-      // Already ready (e.g. cached)
-      video.style.opacity = '1';
+      setVideoReady(true);
     } else {
-      video.addEventListener('canplaythrough', handleReady, { once: true });
+      video.addEventListener('loadeddata', handleReady, { once: true });
     }
 
     return () => {
-      video.removeEventListener('canplaythrough', handleReady);
+      video.removeEventListener('loadeddata', handleReady);
     };
   }, []);
 
@@ -32,10 +42,9 @@ const VideoBackground = () => {
         loop
         muted
         playsInline
-        preload="auto"
-        className="w-full h-full object-cover transition-opacity duration-1000"
-        style={{ opacity: 0 }}
-        poster="https://public.readdy.ai/ai/img_res/5b16ac4f3987737750687430ac4e2a58.jpg"
+        preload="metadata"
+        className="w-full h-full object-cover transition-opacity duration-700"
+        style={{ opacity: prefersReducedMotion || videoReady ? 1 : 0 }}
       >
         <source
           src="https://www.dropbox.com/scl/fi/4ehdjudid9l7uwdnnz8z1/urubici-park-hotel-apresenta-o.mp4?rlkey=1cbsw7stm5qpwpuq7irfbw3to&st=nw959pl5&dl=1"

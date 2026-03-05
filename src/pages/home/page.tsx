@@ -62,9 +62,9 @@ const shortcuts: ShortcutItem[] = [
 ];
 
 const stickerMessages = [
-  { icon: '☕', text: 'Café da manhã até 10:00' },
+  { icon: '☕', text: 'Café da manhã das 6h às 10h' },
+  { icon: '🚭', text: 'Ambiente livre de fumo (áreas internas)' },
   { icon: '🍷', text: 'Carta de vinhos disponível no restaurante' },
-  { icon: '🎵', text: 'Música ao vivo hoje às 20h' },
 ];
 
 const reviews = [
