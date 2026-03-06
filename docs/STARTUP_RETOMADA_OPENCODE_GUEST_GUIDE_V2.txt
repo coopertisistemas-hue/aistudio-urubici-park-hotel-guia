@@ -1,0 +1,39 @@
+RETOMADA RAPIDA - OPENCODE EM OUTRA MAQUINA
+
+1) Abra o repo e carregue estes arquivos primeiro:
+- docs/HANDOFF_CONTEXTO_OPENCODE_GUEST_GUIDE_V2.md
+- docs/HANDOFF_CONTINUACAO_SEGURA_GUEST_GUIDE_V2.md
+- docs/db/host_connect_schema_dump.sql
+
+2) Cole este prompt no OpenCode:
+
+Continue exatamente do handoff em `docs/HANDOFF_CONTEXTO_OPENCODE_GUEST_GUIDE_V2.md` e siga os guardrails de `docs/HANDOFF_CONTINUACAO_SEGURA_GUEST_GUIDE_V2.md`.
+
+Objetivo agora:
+1. Gerar migrations SQL `001` a `008` para o schema `guest_guide` (schema, tabelas, constraints, indexes, triggers e RLS).
+2. Gerar seeds `009` a `011` para paridade do conteudo atual do UPH.
+3. Estruturar Edge Functions `get_page`, `get_home_config`, `list_partners`, `track_event` com contratos estaveis e cache.
+
+Requisitos obrigatorios:
+- Multi-tenant rigoroso (`org_id` + `property_id`) em todo dominio.
+- RLS-first sem exposicao de `draft` para `anon`.
+- `track_event` com idempotencia.
+- fallback de video patrocinado para video padrao.
+
+Saida esperada no final:
+- lista de arquivos criados/editados,
+- resumo de RLS por tabela,
+- checklist de validacao executado,
+- proximos passos curtos.
+
+3) Sequencia operacional sugerida
+- Criar branch: feature/guest-guide-v2-dynamic
+- Implementar migrations 001..008
+- Validar gates de seguranca
+- Implementar seeds 009..011
+- Implementar BFF
+
+4) Nao fazer
+- Nao mexer em politicas legadas fora do escopo `guest_guide` sem necessidade.
+- Nao usar bypass de seguranca para acelerar entrega.
+- Nao publicar sem validar cenarios anon/member/admin/staff.
