@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 import PageHeader from './PageHeader';
 import PageFooter from './PageFooter';
-import { getIndexPages, type IndexPageData } from '../../services/guestGuideService';
-import { useTenant, usePropertyId, useLocale } from '../../contexts/TenantContext';
+import { getIndexPages, trackPageView, type IndexPageData } from '../../services/guestGuideService';
+import { usePropertyId, useLocale } from '../../contexts/TenantContext';
 
 /**
  * Color mapping for index pages (can be made tenant-configurable later)
@@ -64,10 +63,8 @@ export default function DynamicIndexPage({
   const [indexData, setIndexData] = useState<IndexPageData | null>(null);
   const [useFallback, setUseFallback] = useState(false);
   
-  const navigate = useNavigate();
   const propertyId = usePropertyId();
   const locale = useLocale();
-  const { config } = useTenant();
 
   useEffect(() => {
     let mounted = true;
@@ -76,20 +73,22 @@ export default function DynamicIndexPage({
       setIsLoading(true);
       
       try {
-        const data = await getIndexPages(indexSlug, locale, propertyId);
+        const data = await getIndexPages(indexSlug, propertyId, locale);
         
         if (mounted) {
           if (data && data.children && data.children.length > 0) {
             setIndexData(data);
             setUseFallback(false);
-          } else if (fallbackSubcategories) {
-            setUseFallback(true);
+            void trackPageView(indexSlug, data.parent?.id);
+          } else {
+            setUseFallback(!!fallbackSubcategories);
+            void trackPageView(indexSlug);
           }
         }
       } catch (error) {
-        console.error(`[DynamicIndexPage] Error loading ${indexSlug}:`, error);
         if (mounted) {
           setUseFallback(!!fallbackSubcategories);
+          void trackPageView(indexSlug);
         }
       } finally {
         if (mounted) {
@@ -200,8 +199,6 @@ function IndexPageContent({
   backLabel: string;
   isScrolled: boolean;
 }) {
-  const navigate = useNavigate();
-
   return (
     <div className="min-h-screen relative overflow-hidden">
       <PageHeader isScrolled={isScrolled} backTo={backTo} backLabel={backLabel} />

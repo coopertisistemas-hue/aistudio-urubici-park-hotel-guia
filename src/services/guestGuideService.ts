@@ -47,6 +47,7 @@ export {
   type VideoInfo,
   type NavigationItem,
   type StickerItem,
+  type ContactItem,
   type EventType,
   type CTABlock,
   type DetailSection,

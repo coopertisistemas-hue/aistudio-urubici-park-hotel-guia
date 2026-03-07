@@ -1,15 +1,15 @@
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-property-id',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface IndexPageRequest {
-  property_id: string;
-  slug: string;
+  slug?: string;
   locale?: string;
 }
 
@@ -31,7 +31,12 @@ interface IndexPageResponse {
   children: ChildPage[];
 }
 
-function guestGuideHeaders() {
+function getPropertyId(req: Request): string | null {
+  const value = req.headers.get('x-property-id')?.trim() || null;
+  return value && uuidRegex.test(value) ? value : null;
+}
+
+function guestGuideHeaders(propertyId: string) {
   return {
     apikey: supabaseServiceKey,
     Authorization: `Bearer ${supabaseServiceKey}`,
@@ -39,18 +44,17 @@ function guestGuideHeaders() {
     Prefer: 'params=schema=guest_guide',
     'Accept-Profile': 'guest_guide',
     'Content-Profile': 'guest_guide',
+    'x-property-id': propertyId,
   };
 }
 
-async function fetchFromGuestGuide(endpoint: string): Promise<any> {
+async function fetchFromGuestGuide(endpoint: string, propertyId: string): Promise<any> {
   const res = await fetch(`${supabaseUrl}/rest/v1/${endpoint}`, {
-    headers: guestGuideHeaders(),
+    headers: guestGuideHeaders(propertyId),
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    console.log('Fetch error:', res.status, err);
-    return null;
+    throw new Error(await res.text());
   }
 
   return res.json();
@@ -62,33 +66,46 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body: IndexPageRequest = await req.json();
-    const { property_id, slug, locale = 'pt-BR' } = body;
-
-    if (!property_id || !slug) {
-      return new Response(JSON.stringify({ error: 'property_id and slug are required' }), {
+    const propertyId = getPropertyId(req);
+    if (!propertyId) {
+      return new Response(JSON.stringify({ error: 'x-property-id header is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
+    const body = (await req.json().catch(() => ({}))) as IndexPageRequest;
+    const slug = body.slug;
+    const locale = body.locale || 'pt-BR';
+
+    if (!slug) {
+      return new Response(JSON.stringify({ error: 'slug is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const encodedSlug = encodeURIComponent(slug);
+    const encodedLocale = encodeURIComponent(locale);
     let parentId: string | null = null;
     let parentRouteTitle: string | null = null;
 
     const parentRoute = await fetchFromGuestGuide(
-      `page_routes?property_id=eq.${property_id}&slug=eq.${slug}&locale=eq.${locale}&deleted_at=is.null&select=page_id,title&limit=1`
+      `page_routes?property_id=eq.${propertyId}&slug=eq.${encodedSlug}&locale=eq.${encodedLocale}&deleted_at=is.null&select=page_id,title&limit=1`,
+      propertyId,
     );
 
-    if (parentRoute && parentRoute.length > 0) {
+    if (parentRoute?.length) {
       parentId = parentRoute[0].page_id;
       parentRouteTitle = parentRoute[0].title || null;
     }
 
     if (!parentId) {
       const parentBySlug = await fetchFromGuestGuide(
-        `pages?property_id=eq.${property_id}&slug=eq.${slug}&status=eq.published&deleted_at=is.null&select=id&limit=1`
+        `pages?property_id=eq.${propertyId}&slug=eq.${encodedSlug}&status=eq.published&deleted_at=is.null&select=id&limit=1`,
+        propertyId,
       );
-      if (parentBySlug && parentBySlug.length > 0) {
+      if (parentBySlug?.length) {
         parentId = parentBySlug[0].id;
       }
     }
@@ -96,9 +113,10 @@ Deno.serve(async (req) => {
     let parent: IndexPageResponse['parent'] = null;
     if (parentId) {
       const parentRows = await fetchFromGuestGuide(
-        `pages?id=eq.${parentId}&property_id=eq.${property_id}&status=eq.published&deleted_at=is.null&limit=1`
+        `pages?id=eq.${parentId}&property_id=eq.${propertyId}&status=eq.published&deleted_at=is.null&limit=1`,
+        propertyId,
       );
-      if (parentRows && parentRows.length > 0) {
+      if (parentRows?.length) {
         parent = {
           id: parentRows[0].id,
           slug: parentRows[0].slug,
@@ -111,21 +129,21 @@ Deno.serve(async (req) => {
     let childRows: any[] = [];
 
     if (parentId) {
-      const byParent = await fetchFromGuestGuide(
-        `pages?property_id=eq.${property_id}&parent_id=eq.${parentId}&status=eq.published&deleted_at=is.null&order=slug.asc`
+      childRows = await fetchFromGuestGuide(
+        `pages?property_id=eq.${propertyId}&parent_id=eq.${parentId}&status=eq.published&deleted_at=is.null&order=slug.asc`,
+        propertyId,
       );
-      childRows = byParent || [];
     }
 
-    if (childRows.length === 0) {
-      const prefix = encodeURIComponent(slug + '/');
-      const legacy = await fetchFromGuestGuide(
-        `pages?property_id=eq.${property_id}&slug=like.${prefix}%25&status=eq.published&deleted_at=is.null&order=slug.asc`
+    if (!childRows?.length) {
+      const prefix = encodeURIComponent(`${slug}/`);
+      childRows = await fetchFromGuestGuide(
+        `pages?property_id=eq.${propertyId}&slug=like.${prefix}%25&status=eq.published&deleted_at=is.null&order=slug.asc`,
+        propertyId,
       );
-      childRows = legacy || [];
     }
 
-    const children: ChildPage[] = childRows.map((page: any) => ({
+    const children: ChildPage[] = (childRows || []).map((page: any) => ({
       id: page.id,
       slug: page.slug,
       title: page.title,
@@ -133,10 +151,7 @@ Deno.serve(async (req) => {
       template: page.template,
     }));
 
-    const response: IndexPageResponse = {
-      parent,
-      children,
-    };
+    const response: IndexPageResponse = { parent, children };
 
     return new Response(JSON.stringify(response), {
       status: 200,

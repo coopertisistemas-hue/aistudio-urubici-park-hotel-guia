@@ -1,29 +1,15 @@
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-property-id',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface GetHomeConfigRequest {
-  property_id: string;
   locale?: string;
-}
-
-interface HomeConfigResponse {
-  id: string;
-  title: string;
-  subtitle: string | null;
-  logo_url: string | null;
-  background_video: VideoInfo | null;
-  primary_color: string | null;
-  secondary_color: string | null;
-  show_weather: boolean;
-  show_partners: boolean;
-  navigation: NavigationItem[];
-  stickers: StickerItem[];
 }
 
 interface VideoInfo {
@@ -44,11 +30,41 @@ interface NavigationItem {
 
 interface StickerItem {
   id: string;
-  icon: string | null;
-  text: string | null;
+  icon: string;
+  text: string;
 }
 
-function guestGuideHeaders() {
+interface ContactItem {
+  id: string;
+  name: string;
+  contact_type: string;
+  value: string;
+  description: string | null;
+  icon: string | null;
+}
+
+interface HomeConfigResponse {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  logo_url: string | null;
+  background_video: VideoInfo | null;
+  primary_color: string | null;
+  secondary_color: string | null;
+  show_weather: boolean;
+  show_partners: boolean;
+  navigation: NavigationItem[];
+  stickers: StickerItem[];
+  contacts: ContactItem[];
+  map_url: string | null;
+}
+
+function getPropertyId(req: Request): string | null {
+  const value = req.headers.get('x-property-id')?.trim() || null;
+  return value && uuidRegex.test(value) ? value : null;
+}
+
+function guestGuideHeaders(propertyId: string) {
   return {
     apikey: supabaseServiceKey,
     Authorization: `Bearer ${supabaseServiceKey}`,
@@ -56,37 +72,68 @@ function guestGuideHeaders() {
     Prefer: 'params=schema=guest_guide',
     'Accept-Profile': 'guest_guide',
     'Content-Profile': 'guest_guide',
+    'x-property-id': propertyId,
   };
 }
 
-async function fetchFromGuestGuide(endpoint: string): Promise<any> {
+async function fetchFromGuestGuide(endpoint: string, propertyId: string): Promise<any> {
   const res = await fetch(`${supabaseUrl}/rest/v1/${endpoint}`, {
-    headers: guestGuideHeaders(),
+    headers: guestGuideHeaders(propertyId),
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    console.log('Fetch error:', res.status, err);
-    return null;
+    throw new Error(await res.text());
   }
 
   return res.json();
 }
 
-async function rpcGuestGuide(fnName: string, params: Record<string, unknown>): Promise<any> {
+async function rpcGuestGuide(fnName: string, params: Record<string, unknown>, propertyId: string): Promise<any> {
   const res = await fetch(`${supabaseUrl}/rest/v1/rpc/${fnName}`, {
     method: 'POST',
-    headers: guestGuideHeaders(),
+    headers: guestGuideHeaders(propertyId),
     body: JSON.stringify(params),
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    console.log('RPC error:', fnName, res.status, err);
-    return null;
+    throw new Error(await res.text());
   }
 
   return res.json();
+}
+
+async function resolveMapUrl(propertyId: string, locale: string): Promise<string | null> {
+  const mapSlug = encodeURIComponent('links-uteis/localizacao');
+  const encodedLocale = encodeURIComponent(locale);
+  let pageId: string | null = null;
+
+  const routeRows = await fetchFromGuestGuide(
+    `page_routes?property_id=eq.${propertyId}&slug=eq.${mapSlug}&locale=eq.${encodedLocale}&deleted_at=is.null&select=page_id&limit=1`,
+    propertyId,
+  );
+
+  if (routeRows?.length) {
+    pageId = routeRows[0].page_id;
+  }
+
+  if (!pageId) {
+    const pages = await fetchFromGuestGuide(
+      `pages?property_id=eq.${propertyId}&slug=eq.${mapSlug}&status=eq.published&deleted_at=is.null&select=id&limit=1`,
+      propertyId,
+    );
+    if (pages?.length) {
+      pageId = pages[0].id;
+    }
+  }
+
+  if (!pageId) return null;
+
+  const blocks = await fetchFromGuestGuide(
+    `content_blocks?page_id=eq.${pageId}&property_id=eq.${propertyId}&locale=eq.${encodedLocale}&block_type=eq.map&deleted_at=is.null&select=metadata&limit=1`,
+    propertyId,
+  );
+
+  return blocks?.[0]?.metadata?.url || null;
 }
 
 Deno.serve(async (req) => {
@@ -95,21 +142,24 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body: GetHomeConfigRequest = await req.json();
-    const { property_id, locale = 'pt-BR' } = body;
-
-    if (!property_id) {
-      return new Response(JSON.stringify({ error: 'property_id is required' }), {
+    const propertyId = getPropertyId(req);
+    if (!propertyId) {
+      return new Response(JSON.stringify({ error: 'x-property-id header is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
+    const body = (await req.json().catch(() => ({}))) as GetHomeConfigRequest;
+    const locale = body.locale || 'pt-BR';
+    const encodedLocale = encodeURIComponent(locale);
+
     const configs = await fetchFromGuestGuide(
-      `home_configs?property_id=eq.${property_id}&locale=eq.${locale}&deleted_at=is.null&limit=1`
+      `home_configs?property_id=eq.${propertyId}&locale=eq.${encodedLocale}&deleted_at=is.null&limit=1`,
+      propertyId,
     );
 
-    if (!configs || configs.length === 0) {
+    if (!configs?.length) {
       return new Response(JSON.stringify({ error: 'Home config not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -117,13 +167,21 @@ Deno.serve(async (req) => {
     }
 
     const homeConfig = configs[0];
+    const [resolvedVideo, navigation, stickersData, contacts, mapUrl] = await Promise.all([
+      rpcGuestGuide('resolve_background_video', { p_property_id: propertyId, p_locale: locale }, propertyId),
+      fetchFromGuestGuide(
+        `navigation_nodes?property_id=eq.${propertyId}&locale=eq.${encodedLocale}&is_visible=eq.true&parent_id=is.null&deleted_at=is.null&order=sort_order.asc`,
+        propertyId,
+      ),
+      rpcGuestGuide('get_stickers_for_home', { p_property_id: propertyId, p_locale: locale }, propertyId),
+      fetchFromGuestGuide(
+        `contacts?property_id=eq.${propertyId}&deleted_at=is.null&order=sort_order.asc&select=id,name,contact_type,value,description,icon`,
+        propertyId,
+      ),
+      resolveMapUrl(propertyId, locale),
+    ]);
 
-    const resolvedVideo = await rpcGuestGuide('resolve_background_video', {
-      p_property_id: property_id,
-      p_locale: locale,
-    });
-
-    const backgroundVideo: VideoInfo | null = resolvedVideo && resolvedVideo.length > 0
+    const backgroundVideo: VideoInfo | null = resolvedVideo?.length
       ? {
           id: resolvedVideo[0].id ?? null,
           url: resolvedVideo[0].video_url ?? null,
@@ -134,19 +192,10 @@ Deno.serve(async (req) => {
         }
       : null;
 
-    const navigation = await fetchFromGuestGuide(
-      `navigation_nodes?property_id=eq.${property_id}&locale=eq.${locale}&is_visible=eq.true&parent_id=is.null&deleted_at=is.null&order=sort_order.asc`
-    );
-
-    const stickersData = await rpcGuestGuide('get_stickers_for_home', {
-      p_property_id: property_id,
-      p_locale: locale,
-    });
-
-    const stickers: StickerItem[] = (stickersData || []).map((s: any) => ({
-      id: s.id,
-      icon: s.icon || null,
-      text: s.text || null,
+    const stickers: StickerItem[] = (stickersData || []).map((item: any) => ({
+      id: item.id,
+      icon: item.icon || 'i',
+      text: item.text || '',
     }));
 
     const response: HomeConfigResponse = {
@@ -161,6 +210,8 @@ Deno.serve(async (req) => {
       show_partners: homeConfig.show_partners,
       navigation: navigation || [],
       stickers,
+      contacts: contacts || [],
+      map_url: mapUrl,
     };
 
     return new Response(JSON.stringify(response), {

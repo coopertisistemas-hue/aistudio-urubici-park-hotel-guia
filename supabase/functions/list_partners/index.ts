@@ -1,14 +1,14 @@
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-property-id',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface ListPartnersRequest {
-  property_id: string;
   locale?: string;
   category?: string;
   featured_only?: boolean;
@@ -16,7 +16,12 @@ interface ListPartnersRequest {
   offset?: number;
 }
 
-function guestGuideHeaders() {
+function getPropertyId(req: Request): string | null {
+  const value = req.headers.get('x-property-id')?.trim() || null;
+  return value && uuidRegex.test(value) ? value : null;
+}
+
+function guestGuideHeaders(propertyId: string) {
   return {
     apikey: supabaseServiceKey,
     Authorization: `Bearer ${supabaseServiceKey}`,
@@ -24,18 +29,17 @@ function guestGuideHeaders() {
     Prefer: 'params=schema=guest_guide',
     'Accept-Profile': 'guest_guide',
     'Content-Profile': 'guest_guide',
+    'x-property-id': propertyId,
   };
 }
 
-async function fetchFromGuestGuide(endpoint: string): Promise<any> {
+async function fetchFromGuestGuide(endpoint: string, propertyId: string): Promise<any> {
   const res = await fetch(`${supabaseUrl}/rest/v1/${endpoint}`, {
-    headers: guestGuideHeaders(),
+    headers: guestGuideHeaders(propertyId),
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    console.log('Fetch error:', res.status, err);
-    return null;
+    throw new Error(await res.text());
   }
 
   return res.json();
@@ -47,33 +51,31 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body: ListPartnersRequest = await req.json();
-    const {
-      property_id,
-      category,
-      featured_only = false,
-      limit = 20,
-      offset = 0,
-    } = body;
-
-    if (!property_id) {
-      return new Response(JSON.stringify({ error: 'property_id is required' }), {
+    const propertyId = getPropertyId(req);
+    if (!propertyId) {
+      return new Response(JSON.stringify({ error: 'x-property-id header is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    let partnersEndpoint = `partners?property_id=eq.${property_id}&is_active=eq.true&deleted_at=is.null&order=sort_order.asc&limit=${limit}&offset=${offset}`;
-    if (featured_only) {
+    const body = (await req.json().catch(() => ({}))) as ListPartnersRequest;
+    const category = body.category;
+    const featuredOnly = body.featured_only ?? false;
+    const limit = body.limit ?? 20;
+    const offset = body.offset ?? 0;
+
+    let partnersEndpoint = `partners?property_id=eq.${propertyId}&is_active=eq.true&deleted_at=is.null&order=sort_order.asc&limit=${limit}&offset=${offset}`;
+    if (featuredOnly) {
       partnersEndpoint += '&is_featured=eq.true';
     }
     if (category) {
-      partnersEndpoint += `&category=eq.${category}`;
+      partnersEndpoint += `&category=eq.${encodeURIComponent(category)}`;
     }
 
-    const partners = await fetchFromGuestGuide(partnersEndpoint);
+    const partners = await fetchFromGuestGuide(partnersEndpoint, propertyId);
 
-    if (!partners || partners.length === 0) {
+    if (!partners?.length) {
       return new Response(JSON.stringify({ partners: [], total: 0 }), {
         status: 200,
         headers: {
@@ -84,15 +86,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    const partnerIds = partners.map((p: any) => p.id);
-
-    const schedules = await fetchFromGuestGuide(
-      `partner_schedules?property_id=eq.${property_id}&partner_id=in.(${partnerIds.map((id: string) => `"${id}"`).join(',')})`
-    );
-
-    const promotionsRaw = await fetchFromGuestGuide(
-      `partner_promotions?property_id=eq.${property_id}&is_active=eq.true&deleted_at=is.null`
-    );
+    const partnerIds = partners.map((partner: any) => `"${partner.id}"`).join(',');
+    const [schedules, promotionsRaw] = await Promise.all([
+      fetchFromGuestGuide(`partner_schedules?property_id=eq.${propertyId}&partner_id=in.(${partnerIds})`, propertyId),
+      fetchFromGuestGuide(`partner_promotions?property_id=eq.${propertyId}&is_active=eq.true&deleted_at=is.null`, propertyId),
+    ]);
 
     const now = Date.now();
     const promotions = (promotionsRaw || []).filter((promo: any) => {
@@ -101,43 +99,37 @@ Deno.serve(async (req) => {
       return (validFrom === null || validFrom <= now) && (validUntil === null || validUntil >= now);
     });
 
-    const response = partners.map((partner: any) => {
-      const partnerSchedules = (schedules || [])
-        .filter((s: any) => s.partner_id === partner.id)
-        .map((s: any) => ({
-          day_of_week: s.day_of_week,
-          open_time: s.open_time,
-          close_time: s.close_time,
-          is_closed: s.is_closed,
-          notes: s.notes,
-        }));
-
-      const partnerPromotions = promotions
-        .filter((p: any) => p.partner_id === partner.id)
-        .map((p: any) => ({
-          title: p.title,
-          description: p.description,
-          discount_code: p.discount_code,
-          discount_value: p.discount_value,
-        }));
-
-      return {
-        id: partner.id,
-        name: partner.name,
-        slug: partner.slug,
-        description: partner.description,
-        logo_url: partner.logo_url,
-        cover_image_url: partner.cover_image_url,
-        website_url: partner.website_url,
-        phone: partner.phone,
-        email: partner.email,
-        address: partner.address,
-        category: partner.category,
-        is_featured: partner.is_featured,
-        schedules: partnerSchedules,
-        promotions: partnerPromotions,
-      };
-    });
+    const response = partners.map((partner: any) => ({
+      id: partner.id,
+      name: partner.name,
+      slug: partner.slug,
+      description: partner.description,
+      logo_url: partner.logo_url,
+      cover_image_url: partner.cover_image_url,
+      website_url: partner.website_url,
+      phone: partner.phone,
+      email: partner.email,
+      address: partner.address,
+      category: partner.category,
+      is_featured: partner.is_featured,
+      schedules: (schedules || [])
+        .filter((schedule: any) => schedule.partner_id === partner.id)
+        .map((schedule: any) => ({
+          day_of_week: schedule.day_of_week,
+          open_time: schedule.open_time,
+          close_time: schedule.close_time,
+          is_closed: schedule.is_closed,
+          notes: schedule.notes,
+        })),
+      promotions: promotions
+        .filter((promotion: any) => promotion.partner_id === partner.id)
+        .map((promotion: any) => ({
+          title: promotion.title,
+          description: promotion.description,
+          discount_code: promotion.discount_code,
+          discount_value: promotion.discount_value,
+        })),
+    }));
 
     return new Response(JSON.stringify({ partners: response, total: partners.length }), {
       status: 200,

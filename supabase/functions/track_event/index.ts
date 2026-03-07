@@ -1,15 +1,15 @@
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-property-id',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface TrackEventRequest {
-  property_id: string;
-  event_type: string;
+  event_type?: string;
   event_category?: string;
   event_label?: string;
   entity_type?: string;
@@ -20,13 +20,17 @@ interface TrackEventRequest {
   metadata?: Record<string, unknown>;
 }
 
+function getPropertyId(req: Request): string | null {
+  const value = req.headers.get('x-property-id')?.trim() || null;
+  return value && uuidRegex.test(value) ? value : null;
+}
+
 function asUuidOrNull(value?: string): string | null {
   if (!value) return null;
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   return uuidRegex.test(value) ? value : null;
 }
 
-function guestGuideHeaders() {
+function guestGuideHeaders(propertyId: string) {
   return {
     apikey: supabaseServiceKey,
     Authorization: `Bearer ${supabaseServiceKey}`,
@@ -34,34 +38,31 @@ function guestGuideHeaders() {
     Prefer: 'params=schema=guest_guide',
     'Accept-Profile': 'guest_guide',
     'Content-Profile': 'guest_guide',
+    'x-property-id': propertyId,
   };
 }
 
-async function fetchFromGuestGuide(endpoint: string): Promise<any> {
+async function fetchFromGuestGuide(endpoint: string, propertyId: string): Promise<any> {
   const res = await fetch(`${supabaseUrl}/rest/v1/${endpoint}`, {
-    headers: guestGuideHeaders(),
+    headers: guestGuideHeaders(propertyId),
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    console.log('Fetch error:', res.status, err);
-    return null;
+    throw new Error(await res.text());
   }
 
   return res.json();
 }
 
-async function rpcGuestGuide(fnName: string, params: Record<string, unknown>): Promise<any> {
+async function rpcGuestGuide(fnName: string, params: Record<string, unknown>, propertyId: string): Promise<any> {
   const res = await fetch(`${supabaseUrl}/rest/v1/rpc/${fnName}`, {
     method: 'POST',
-    headers: guestGuideHeaders(),
+    headers: guestGuideHeaders(propertyId),
     body: JSON.stringify(params),
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    console.log('RPC error:', fnName, res.status, err);
-    return null;
+    throw new Error(await res.text());
   }
 
   return res.json();
@@ -73,22 +74,29 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body: TrackEventRequest = await req.json();
+    const propertyId = getPropertyId(req);
+    if (!propertyId) {
+      return new Response(JSON.stringify({ error: 'x-property-id header is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const body = (await req.json().catch(() => ({}))) as TrackEventRequest;
     const {
-      property_id,
-      event_type,
-      event_category,
-      event_label,
-      entity_type,
-      entity_id,
-      user_session_id,
-      idempotency_key,
-      referrer_url,
+      event_type: eventType,
+      event_category: eventCategory,
+      event_label: eventLabel,
+      entity_type: entityType,
+      entity_id: entityId,
+      user_session_id: userSessionId,
+      idempotency_key: idempotencyKey,
+      referrer_url: referrerUrl,
       metadata = {},
     } = body;
 
-    if (!property_id || !event_type) {
-      return new Response(JSON.stringify({ error: 'property_id and event_type are required' }), {
+    if (!eventType) {
+      return new Response(JSON.stringify({ error: 'event_type is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -108,65 +116,64 @@ Deno.serve(async (req) => {
       'contact_click',
     ];
 
-    if (!allowedEventTypes.includes(event_type)) {
+    if (!allowedEventTypes.includes(eventType)) {
       return new Response(
         JSON.stringify({ error: `Invalid event_type. Allowed: ${allowedEventTypes.join(', ')}` }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
-    let existingEvent: any = null;
-    if (idempotency_key) {
+    if (idempotencyKey) {
       const existing = await fetchFromGuestGuide(
-        `event_log?property_id=eq.${property_id}&idempotency_key=eq.${idempotency_key}&select=id,event_type,created_at&limit=1`
+        `event_log?property_id=eq.${propertyId}&idempotency_key=eq.${encodeURIComponent(idempotencyKey)}&select=id,event_type,created_at&limit=1`,
+        propertyId,
       );
-      if (existing && existing.length > 0) {
-        existingEvent = existing[0];
+
+      if (existing?.length) {
+        return new Response(
+          JSON.stringify({
+            id: existing[0].id,
+            event_type: existing[0].event_type,
+            created_at: existing[0].created_at,
+            is_new: false,
+          }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
       }
     }
 
-    if (existingEvent) {
-      return new Response(
-        JSON.stringify({
-          id: existingEvent.id,
-          event_type: existingEvent.event_type,
-          created_at: existingEvent.created_at,
-          is_new: false,
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const userAgent = req.headers.get('user-agent') || null;
-
-    const eventId = await rpcGuestGuide('track_event', {
-      p_property_id: property_id,
-      p_event_type: event_type,
-      p_event_category: event_category || null,
-      p_event_label: event_label || null,
-      p_entity_type: entity_type || null,
-      p_entity_id: asUuidOrNull(entity_id),
-      p_user_session_id: user_session_id || null,
-      p_idempotency_key: idempotency_key || null,
-      p_referrer_url: referrer_url || null,
-      p_user_agent: userAgent,
-      p_metadata: metadata,
-    });
+    const eventId = await rpcGuestGuide(
+      'track_event',
+      {
+        p_property_id: propertyId,
+        p_event_type: eventType,
+        p_event_category: eventCategory || null,
+        p_event_label: eventLabel || null,
+        p_entity_type: entityType || null,
+        p_entity_id: asUuidOrNull(entityId),
+        p_user_session_id: userSessionId || null,
+        p_idempotency_key: idempotencyKey || null,
+        p_referrer_url: referrerUrl || null,
+        p_user_agent: req.headers.get('user-agent') || null,
+        p_metadata: metadata,
+      },
+      propertyId,
+    );
 
     if (!eventId) {
       throw new Error('Failed to write event');
     }
 
     const eventRows = await fetchFromGuestGuide(
-      `event_log?id=eq.${eventId}&select=id,event_type,created_at&limit=1`
+      `event_log?id=eq.${eventId}&select=id,event_type,created_at&limit=1`,
+      propertyId,
     );
 
-    if (!eventRows || eventRows.length === 0) {
+    if (!eventRows?.length) {
       throw new Error('Event created but not retrievable');
     }
 
     const event = eventRows[0];
-
     return new Response(
       JSON.stringify({
         id: event.id,
@@ -174,7 +181,7 @@ Deno.serve(async (req) => {
         created_at: event.created_at,
         is_new: true,
       }),
-      { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {

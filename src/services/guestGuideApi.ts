@@ -59,6 +59,15 @@ export interface StickerItem {
   text: string;
 }
 
+export interface ContactItem {
+  id: string;
+  name: string;
+  contact_type: string;
+  value: string;
+  description: string | null;
+  icon: string | null;
+}
+
 export interface HomeConfig {
   id: string;
   title: string;
@@ -71,6 +80,8 @@ export interface HomeConfig {
   show_partners: boolean;
   navigation: NavigationItem[];
   stickers: StickerItem[];
+  contacts: ContactItem[];
+  map_url: string | null;
 }
 
 export interface PartnerSchedule {
@@ -167,8 +178,10 @@ function createGuestGuideApiError(args: GuestGuideApiErrorArgs): Error & { statu
 
 async function callEdgeFunction<T>(
   functionName: string,
-  body: Record<string, unknown>
+  body: Record<string, unknown>,
+  propertyId?: string
 ): Promise<T> {
+  const resolvedPropertyId = propertyId || getPropertyId();
   const response = await fetch(
     `${SUPABASE_URL}/functions/v1/${functionName}`,
     {
@@ -176,6 +189,7 @@ async function callEdgeFunction<T>(
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'x-property-id': resolvedPropertyId,
       },
       body: JSON.stringify(body),
     }
@@ -206,10 +220,7 @@ export async function getHomeConfig(
   propertyId?: string,
   locale: Locale = 'pt-BR'
 ): Promise<HomeConfig> {
-  return callEdgeFunction<HomeConfig>('get_home_config', {
-    property_id: propertyId || getPropertyId(),
-    locale,
-  });
+  return callEdgeFunction<HomeConfig>('get_home_config', { locale }, propertyId);
 }
 
 export async function getPage(
@@ -217,11 +228,7 @@ export async function getPage(
   propertyId?: string,
   locale: Locale = 'pt-BR'
 ): Promise<PageData> {
-  return callEdgeFunction<PageData>('get_page', {
-    property_id: propertyId || getPropertyId(),
-    slug,
-    locale,
-  });
+  return callEdgeFunction<PageData>('get_page', { slug, locale }, propertyId);
 }
 
 export async function listPartners(
@@ -244,35 +251,27 @@ export async function listPartners(
   } = options;
 
   return callEdgeFunction<PartnersResponse>('list_partners', {
-    property_id: propertyId || getPropertyId(),
     locale,
     category,
     featured_only: featuredOnly,
     limit,
     offset,
-  });
+  }, propertyId);
 }
 
 export async function trackEvent(
   eventData: Omit<TrackEventRequest, 'property_id'>,
   propertyId?: string
 ): Promise<TrackEventResponse> {
-  return callEdgeFunction<TrackEventResponse>('track_event', {
-    property_id: propertyId || getPropertyId(),
-    ...eventData,
-  });
+  return callEdgeFunction<TrackEventResponse>('track_event', eventData, propertyId);
 }
 
 export async function getIndexPages(
   slug: string,
-  locale: Locale = 'pt-BR',
-  propertyId?: string
+  propertyId?: string,
+  locale: Locale = 'pt-BR'
 ): Promise<IndexPageData> {
-  return callEdgeFunction('get_index_pages', {
-    property_id: propertyId || getPropertyId(),
-    slug,
-    locale,
-  });
+  return callEdgeFunction('get_index_pages', { slug, locale }, propertyId);
 }
 
 // ─── Utilities ───────────────────────────────────────────────────────────────

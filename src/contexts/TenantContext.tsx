@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getHomeConfig, type HomeConfigData, type Locale } from '../services/guestGuideService';
+import { getHomeConfig, type ContactItem, type HomeConfigData, type Locale } from '../services/guestGuideService';
 
 export interface TenantConfig {
   propertyId: string;
@@ -14,6 +14,8 @@ export interface TenantConfig {
   secondaryColor: string | null;
   showWeather: boolean;
   showPartners: boolean;
+  contacts: ContactItem[];
+  mapUrl: string | null;
 }
 
 interface TenantContextValue {
@@ -23,8 +25,10 @@ interface TenantContextValue {
   refreshConfig: () => Promise<void>;
 }
 
-const DEFAULT_PROPERTY_ID = '22222222-2222-2222-2222-222222222222'; // UPH (pilot)
+const DEFAULT_PROPERTY_ID = '22222222-2222-2222-2222-222222222222';
 const DEFAULT_LOCALE = 'pt-BR';
+const FALLBACK_BRAND_TITLE = 'Guest Guide';
+const FALLBACK_BRAND_SUBTITLE = 'Hospitality Information';
 
 const TenantContext = createContext<TenantContextValue | null>(null);
 
@@ -71,25 +75,27 @@ export function TenantProvider({ children }: { children: ReactNode }) {
           secondaryColor: homeConfig.secondary_color,
           showWeather: homeConfig.show_weather,
           showPartners: homeConfig.show_partners,
+          contacts: homeConfig.contacts || [],
+          mapUrl: homeConfig.map_url || null,
         });
       } else {
-        // Fallback to default UPH config if API fails
         setConfig({
           propertyId,
-          orgId: 'b729534c-753b-48b0-ab4f-0756cc1cd271',
+          orgId: '',
           locale,
-          title: 'Urubici Park Hotel',
-          subtitle: 'Hospedagem Premium',
+          title: FALLBACK_BRAND_TITLE,
+          subtitle: FALLBACK_BRAND_SUBTITLE,
           logoUrl: null,
           backgroundVideoUrl: null,
           primaryColor: '#24577A',
           secondaryColor: '#6B4E8A',
           showWeather: true,
           showPartners: true,
+          contacts: [],
+          mapUrl: null,
         });
       }
     } catch (err) {
-      console.error('[TenantProvider] Failed to load config:', err);
       setError('Failed to load tenant configuration');
     } finally {
       setIsLoading(false);
@@ -159,7 +165,7 @@ export function useTenantBranding(): TenantBranding {
     primaryColorHex: config?.primaryColor?.replace('#', '') || '24577A',
     secondaryColorHex: config?.secondaryColor?.replace('#', '') || '6B4E8A',
     logoUrl: config?.logoUrl || null,
-    title: config?.title || 'Guest Guide',
+    title: config?.title || FALLBACK_BRAND_TITLE,
     subtitle: config?.subtitle || null,
   };
 }
