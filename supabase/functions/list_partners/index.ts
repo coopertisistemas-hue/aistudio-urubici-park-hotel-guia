@@ -2,129 +2,105 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-}
+};
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 interface ListPartnersRequest {
-  property_id: string
-  locale?: string
-  category?: string
-  featured_only?: boolean
-  limit?: number
-  offset?: number
+  property_id: string;
+  locale?: string;
+  category?: string;
+  featured_only?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
-interface PartnerResponse {
-  id: string
-  name: string
-  slug: string
-  description: string | null
-  logo_url: string | null
-  cover_image_url: string | null
-  website_url: string | null
-  phone: string | null
-  email: string | null
-  address: string | null
-  category: string | null
-  is_featured: boolean
-  schedules: PartnerSchedule[]
-  promotions: PartnerPromotion[]
+function guestGuideHeaders() {
+  return {
+    apikey: supabaseServiceKey,
+    Authorization: `Bearer ${supabaseServiceKey}`,
+    'Content-Type': 'application/json',
+    Prefer: 'params=schema=guest_guide',
+    'Accept-Profile': 'guest_guide',
+    'Content-Profile': 'guest_guide',
+  };
 }
 
-interface PartnerSchedule {
-  day_of_week: number
-  open_time: string | null
-  close_time: string | null
-  is_closed: boolean
-  notes: string | null
-}
-
-interface PartnerPromotion {
-  title: string
-  description: string | null
-  discount_code: string | null
-  discount_value: string | null
-}
-
-async function fetchFromPublic(endpoint: string): Promise<any> {
+async function fetchFromGuestGuide(endpoint: string): Promise<any> {
   const res = await fetch(`${supabaseUrl}/rest/v1/${endpoint}`, {
-    headers: {
-      'apikey': supabaseServiceKey,
-      'Authorization': `Bearer ${supabaseServiceKey}`,
-      'Content-Type': 'application/json'
-    }
-  })
+    headers: guestGuideHeaders(),
+  });
+
   if (!res.ok) {
-    const err = await res.text()
-    console.log('Fetch error:', res.status, err)
-    return null
+    const err = await res.text();
+    console.log('Fetch error:', res.status, err);
+    return null;
   }
-  return res.json()
+
+  return res.json();
 }
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const body: ListPartnersRequest = await req.json()
-    const { 
-      property_id, 
-      locale = 'pt-BR', 
-      category, 
+    const body: ListPartnersRequest = await req.json();
+    const {
+      property_id,
+      category,
       featured_only = false,
       limit = 20,
-      offset = 0
-    } = body
+      offset = 0,
+    } = body;
 
     if (!property_id) {
-      return new Response(
-        JSON.stringify({ error: 'property_id is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'property_id is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Build query for partners
-    let partnersEndpoint = `partners?property_id=eq.${property_id}&is_active=eq.true&order=sort_order.asc&limit=${limit}&offset=${offset}`
+    let partnersEndpoint = `partners?property_id=eq.${property_id}&is_active=eq.true&deleted_at=is.null&order=sort_order.asc&limit=${limit}&offset=${offset}`;
     if (featured_only) {
-      partnersEndpoint += '&is_featured=eq.true'
+      partnersEndpoint += '&is_featured=eq.true';
     }
     if (category) {
-      partnersEndpoint += `&category=eq.${category}`
+      partnersEndpoint += `&category=eq.${category}`;
     }
 
-    const partners = await fetchFromPublic(partnersEndpoint)
+    const partners = await fetchFromGuestGuide(partnersEndpoint);
 
     if (!partners || partners.length === 0) {
-      return new Response(
-        JSON.stringify({ partners: [], total: 0 }),
-        { 
-          status: 200, 
-          headers: { 
-            ...corsHeaders, 
-            'Content-Type': 'application/json',
-            'Cache-Control': 'public, max-age=300, s-maxage=3600'
-          } 
-        }
-      )
+      return new Response(JSON.stringify({ partners: [], total: 0 }), {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, max-age=300, s-maxage=3600',
+        },
+      });
     }
 
-    // Buscar schedules e promotions
-    const partnerIds = partners.map((p: any) => p.id)
+    const partnerIds = partners.map((p: any) => p.id);
 
-    const schedules = await fetchFromPublic(
-      `partner_schedules?partner_id=in.(${partnerIds.map((id: string) => `"${id}"`).join(',')})`
-    )
+    const schedules = await fetchFromGuestGuide(
+      `partner_schedules?property_id=eq.${property_id}&partner_id=in.(${partnerIds.map((id: string) => `"${id}"`).join(',')})`
+    );
 
-    const now = new Date().toISOString()
-    const promotions = await fetchFromPublic(
-      `partner_promotions?property_id=eq.${property_id}&is_active=eq.true&or=(valid_from.is.null,valid_from.lte.${now})&or=(valid_until.is.null,valid_until.gte.${now})`
-    )
+    const promotionsRaw = await fetchFromGuestGuide(
+      `partner_promotions?property_id=eq.${property_id}&is_active=eq.true&deleted_at=is.null`
+    );
 
-    // Montar resposta
+    const now = Date.now();
+    const promotions = (promotionsRaw || []).filter((promo: any) => {
+      const validFrom = promo.valid_from ? new Date(promo.valid_from).getTime() : null;
+      const validUntil = promo.valid_until ? new Date(promo.valid_until).getTime() : null;
+      return (validFrom === null || validFrom <= now) && (validUntil === null || validUntil >= now);
+    });
+
     const response = partners.map((partner: any) => {
       const partnerSchedules = (schedules || [])
         .filter((s: any) => s.partner_id === partner.id)
@@ -133,17 +109,17 @@ Deno.serve(async (req) => {
           open_time: s.open_time,
           close_time: s.close_time,
           is_closed: s.is_closed,
-          notes: s.notes
-        }))
+          notes: s.notes,
+        }));
 
-      const partnerPromotions = (promotions || [])
+      const partnerPromotions = promotions
         .filter((p: any) => p.partner_id === partner.id)
         .map((p: any) => ({
           title: p.title,
           description: p.description,
           discount_code: p.discount_code,
-          discount_value: p.discount_value
-        }))
+          discount_value: p.discount_value,
+        }));
 
       return {
         id: partner.id,
@@ -159,26 +135,22 @@ Deno.serve(async (req) => {
         category: partner.category,
         is_featured: partner.is_featured,
         schedules: partnerSchedules,
-        promotions: partnerPromotions
-      }
-    })
+        promotions: partnerPromotions,
+      };
+    });
 
-    return new Response(
-      JSON.stringify({ partners: response, total: partners.length }),
-      { 
-        status: 200, 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=300, s-maxage=3600'
-        } 
-      }
-    )
-
+    return new Response(JSON.stringify({ partners: response, total: partners.length }), {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300, s-maxage=3600',
+      },
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
-})
+});
