@@ -1,29 +1,25 @@
-import DetailLayout, { type DetailSection } from '../../../components/feature/DetailLayout';
+import DynamicDetailPage from '../../../components/feature/DynamicDetailPage';
 
-const sections: DetailSection[] = [
+const fallbackSections = [
     {
         icon: 'ri-time-line',
         title: 'Horário',
-        text: 'Check-out até 12h00.',
+        text: 'O check-out deve ser realizado até as 12h. Devolva as chaves na recepção ao sair.',
     },
     {
         icon: 'ri-alarm-warning-line',
-        title: 'Atrasos',
-        text: 'Após 12h00 poderá haver cobrança adicional conforme política do hotel.',
-    },
-    {
-        icon: 'ri-luggage-cart-line',
-        title: 'Bagagens',
-        text: "Se precisar de apoio com bagagens, utilize a opção 'Chamar Recepção'.",
+        title: 'Late Check-out',
+        text: 'Sujeito à disponibilidade e cobrança adicional. Solicite na recepção com antecedência.',
     },
 ];
 
 const CheckOutPage = () => (
-    <DetailLayout
+    <DynamicDetailPage
+        apiSlug="sua-estadia/check-out"
+        fallbackSections={fallbackSections}
         title="Check-out"
         subtitle="Sua Estadia"
         description="Orientações para encerramento da hospedagem e saída."
-        sections={sections}
         backTo="/sua-estadia"
         backLabel="Voltar para Sua Estadia"
         heroIcon="ri-logout-box-line"

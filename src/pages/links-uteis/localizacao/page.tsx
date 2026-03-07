@@ -1,29 +1,20 @@
-import DetailLayout, { type DetailSection } from '../../../components/feature/DetailLayout';
+import DynamicDetailPage from '../../../components/feature/DynamicDetailPage';
 
-const sections: DetailSection[] = [
+const fallbackSections = [
     {
         icon: 'ri-map-pin-line',
-        title: 'Endereço',
-        text: "Para confirmação do endereço completo e orientações, utilize a opção 'Chamar Recepção'.",
-    },
-    {
-        icon: 'ri-navigation-line',
-        title: 'Rotas',
-        text: 'Use o aplicativo de mapas de sua preferência para navegação.',
-    },
-    {
-        icon: 'ri-information-line',
-        title: 'Apoio',
-        text: "Se precisar de ajuda, utilize a opção 'Chamar Recepção'.",
+        title: 'Localização',
+        text: 'Urubici Park Hotel',
     },
 ];
 
 const LocalizacaoPage = () => (
-    <DetailLayout
+    <DynamicDetailPage
+        apiSlug="links-uteis/localizacao"
+        fallbackSections={fallbackSections}
         title="Localização"
         subtitle="Links Úteis"
         description="Informações de localização e orientações gerais."
-        sections={sections}
         backTo="/links-uteis"
         backLabel="Voltar para Links Úteis"
         heroIcon="ri-map-pin-line"

@@ -1,29 +1,20 @@
-import DetailLayout, { type DetailSection } from '../../../components/feature/DetailLayout';
+import DynamicDetailPage from '../../../components/feature/DynamicDetailPage';
 
-const sections: DetailSection[] = [
+const fallbackSections = [
     {
-        icon: 'ri-time-line',
-        title: 'Horário',
-        text: 'O café da manhã é servido diariamente conforme horário definido pelo hotel.',
-    },
-    {
-        icon: 'ri-map-pin-line',
-        title: 'Local',
-        text: 'O café da manhã é servido no restaurante do hotel.',
-    },
-    {
-        icon: 'ri-information-line',
-        title: 'Orientações',
-        text: 'Caso precise de alguma informação adicional ou tenha restrições alimentares, consulte a recepção.',
+        icon: 'ri-cup-line',
+        title: 'Café da Manhã',
+        text: 'O café da manhã é servido das 6h às 10h, com opções variadas de pães, frutas, frios, ovos, cafés e sucos.',
     },
 ];
 
 const CafeDaManhaDetailPage = () => (
-    <DetailLayout
+    <DynamicDetailPage
+        apiSlug="cafe-gastronomia/cafe-da-manha"
+        fallbackSections={fallbackSections}
         title="Café da Manhã"
         subtitle="Café & Gastronomia"
         description="Informações sobre horário e funcionamento do café da manhã."
-        sections={sections}
         backTo="/cafe-gastronomia"
         backLabel="Voltar para Café & Gastronomia"
         heroIcon="ri-cup-line"

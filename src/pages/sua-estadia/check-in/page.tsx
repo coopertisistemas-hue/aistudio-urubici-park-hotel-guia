@@ -1,6 +1,6 @@
-import DetailLayout, { type DetailSection } from '../../../components/feature/DetailLayout';
+import DynamicDetailPage from '../../../components/feature/DynamicDetailPage';
 
-const sections: DetailSection[] = [
+const fallbackSections = [
     {
         icon: 'ri-time-line',
         title: 'Horário',
@@ -19,11 +19,12 @@ const sections: DetailSection[] = [
 ];
 
 const CheckInPage = () => (
-    <DetailLayout
+    <DynamicDetailPage
+        apiSlug="sua-estadia/check-in"
+        fallbackSections={fallbackSections}
         title="Check-in"
         subtitle="Sua Estadia"
         description="Orientações para a sua chegada e início da hospedagem."
-        sections={sections}
         backTo="/sua-estadia"
         backLabel="Voltar para Sua Estadia"
         heroIcon="ri-login-box-line"

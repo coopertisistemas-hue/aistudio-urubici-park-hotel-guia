@@ -1,34 +1,25 @@
-import DetailLayout, { type DetailSection } from '../../../components/feature/DetailLayout';
+import DynamicDetailPage from '../../../components/feature/DynamicDetailPage';
 
-const sections: DetailSection[] = [
-    {
-        icon: 'ri-time-line',
-        title: 'Horário de limpeza',
-        text: 'A limpeza diária ocorre entre 09h00 e 15h00.',
-    },
+const fallbackSections = [
     {
         icon: 'ri-t-shirt-2-line',
-        title: 'Troca de enxoval',
-        text: 'A troca de enxoval ocorre a cada 3 dias ou sob solicitação.',
+        title: 'Troca de Roupas',
+        text: 'A troca de roupas de cama e banho é realizada a cada 2 dias durante sua estadia.',
     },
     {
-        icon: 'ri-drop-line',
-        title: 'Toalhas',
-        text: "Se precisar de troca adicional de toalhas, utilize a opção 'Chamar Recepção'.",
-    },
-    {
-        icon: 'ri-information-line',
-        title: 'Orientações',
-        text: "Para ajustes de horário ou solicitações especiais, utilize a opção 'Chamar Recepção'.",
+        icon: 'ri-leaf-line',
+        title: 'Sustentabilidade',
+        text: 'Para manter o conforto e contribuir com práticas sustentáveis, a troca de enxoval é realizada a cada 2 dias.',
     },
 ];
 
 const LimpezaEEnxovalPage = () => (
-    <DetailLayout
+    <DynamicDetailPage
+        apiSlug="sua-estadia/limpeza-e-enxoval"
+        fallbackSections={fallbackSections}
         title="Limpeza & Enxoval"
         subtitle="Sua Estadia"
         description="Horários e orientações sobre limpeza do quarto e troca de enxoval."
-        sections={sections}
         backTo="/sua-estadia"
         backLabel="Voltar para Sua Estadia"
         heroIcon="ri-home-smile-line"

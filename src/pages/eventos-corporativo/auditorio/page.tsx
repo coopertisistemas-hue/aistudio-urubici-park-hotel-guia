@@ -1,35 +1,20 @@
+import DynamicDetailPage from '../../../components/feature/DynamicDetailPage';
 
-import DetailLayout, { type DetailSection } from '../../../components/feature/DetailLayout';
-
-const sections: DetailSection[] = [
+const fallbackSections = [
     {
-        icon: 'ri-group-line',
-        title: 'Capacidade',
-        text: 'O auditório possui capacidade aproximada para até 150 pessoas.',
-    },
-    {
-        icon: 'ri-tools-line',
-        title: 'Estrutura',
-        text: 'O espaço pode ser configurado conforme o tipo de evento, como palestras, treinamentos ou reuniões.',
-    },
-    {
-        icon: 'ri-time-line',
-        title: 'Horários',
-        text: 'A utilização pode ocorrer inclusive fora do horário comercial, mediante agendamento.',
-    },
-    {
-        icon: 'ri-information-line',
-        title: 'Solicitações e Orçamentos',
-        text: "Para solicitar informações, disponibilidade ou orçamento para eventos, utilize a opção 'Chamar Recepção'.",
+        icon: 'ri-presentation-line',
+        title: 'Auditório',
+        text: 'O hotel possui auditório disponível para eventos e reuniões. Consulte condições e disponibilidade na recepção.',
     },
 ];
 
 const AuditorioPage = () => (
-    <DetailLayout
+    <DynamicDetailPage
+        apiSlug="eventos-corporativo/auditorio"
+        fallbackSections={fallbackSections}
         title="Auditório / Salão de Eventos"
         subtitle="Eventos & Corporativo"
-        description="Informações sobre utilização do auditório e realização de eventos no hotel."
-        sections={sections}
+        description="Informações sobre utilização do inúmerário e realização de eventos no hotel."
         backTo="/eventos-corporativo"
         backLabel="Voltar para Eventos & Corporativo"
         heroIcon="ri-presentation-line"

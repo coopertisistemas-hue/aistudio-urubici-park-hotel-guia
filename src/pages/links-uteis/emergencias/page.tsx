@@ -1,7 +1,6 @@
+import DynamicDetailPage from '../../../components/feature/DynamicDetailPage';
 
-import DetailLayout, { type DetailSection } from '../../../components/feature/DetailLayout';
-
-const sections: DetailSection[] = [
+const fallbackSections = [
     {
         icon: 'ri-police-car-line',
         title: 'Polícia',
@@ -18,18 +17,19 @@ const sections: DetailSection[] = [
         text: '193',
     },
     {
-        icon: 'ri-information-line',
+        icon: 'ri-phone-line',
         title: 'Apoio do Hotel',
-        text: "Para assistência interna, utilize a opção 'Chamar Recepção' e disque o ramal 9 no telefone do quarto.",
+        text: 'Para assistência interna, utilize a opção Chamar Recepção e disque o ramal 9 no telefone do quarto.',
     },
 ];
 
 const EmergenciasPage = () => (
-    <DetailLayout
+    <DynamicDetailPage
+        apiSlug="links-uteis/emergencias"
+        fallbackSections={fallbackSections}
         title="Emergências"
         subtitle="Links Úteis"
         description="Contatos essenciais para situações de emergência."
-        sections={sections}
         backTo="/links-uteis"
         backLabel="Voltar para Links Úteis"
         heroIcon="ri-alarm-warning-line"

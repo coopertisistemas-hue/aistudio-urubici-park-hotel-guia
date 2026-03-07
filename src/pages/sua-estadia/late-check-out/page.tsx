@@ -1,29 +1,20 @@
-import DetailLayout, { type DetailSection } from '../../../components/feature/DetailLayout';
+import DynamicDetailPage from '../../../components/feature/DynamicDetailPage';
 
-const sections: DetailSection[] = [
+const fallbackSections = [
     {
         icon: 'ri-calendar-check-line',
-        title: 'Disponibilidade',
-        text: 'O late check-out está sujeito à disponibilidade no dia.',
-    },
-    {
-        icon: 'ri-money-dollar-circle-line',
-        title: 'Cobrança',
-        text: 'Poderá haver cobrança adicional conforme política do hotel.',
-    },
-    {
-        icon: 'ri-phone-line',
-        title: 'Solicitação',
-        text: "Para solicitar late check-out, utilize a opção 'Chamar Recepção'.",
+        title: 'Late Check-out',
+        text: 'Sujeito à disponibilidade do hotel. Solicite com antecedência na recepção. Pode haver cobrança adicional.',
     },
 ];
 
 const LateCheckOutPage = () => (
-    <DetailLayout
+    <DynamicDetailPage
+        apiSlug="sua-estadia/late-check-out"
+        fallbackSections={fallbackSections}
         title="Late Check-out"
         subtitle="Sua Estadia"
         description="Regras e orientações para saída após o horário padrão."
-        sections={sections}
         backTo="/sua-estadia"
         backLabel="Voltar para Sua Estadia"
         heroIcon="ri-time-line"

@@ -5,12 +5,14 @@ import PageFooter from '../../components/feature/PageFooter';
 import QuickShortcuts, { type ShortcutItem } from '../../components/QuickShortcuts';
 import TopSticker from '../../components/TopSticker';
 import ReviewCarousel from '../../components/ReviewCarousel';
-import { useLanguage, languageLabels, type Language } from '../../contexts/LanguageContext';
+import { getHomeConfig, type HomeConfigData, DEFAULT_PROPERTY_ID } from '../../services/guestGuideService';
+import { useTenant, usePropertyId, useLocale } from '../../contexts/TenantContext';
 
 const REVIEW_URL = 'https://www.google.com/search?q=Urubici+Park+Hotel+avaliacoes';
 const MAPS_URL = 'https://www.google.com/maps/place/Urubici+Park+Hotel';
 
-const shortcuts: ShortcutItem[] = [
+// Default fallback data
+const DEFAULT_SHORTCUTS: ShortcutItem[] = [
   {
     icon: 'ri-phone-line',
     label: 'Chamar Recepção',
@@ -61,13 +63,13 @@ const shortcuts: ShortcutItem[] = [
   },
 ];
 
-const stickerMessages = [
+const DEFAULT_STICKERS = [
   { icon: '☕', text: 'Café da manhã das 6h às 10h' },
   { icon: '🚭', text: 'Ambiente livre de fumo (áreas internas)' },
   { icon: '🍷', text: 'Carta de vinhos disponível no restaurante' },
 ];
 
-const reviews = [
+const DEFAULT_REVIEWS = [
   { name: 'Mariana S.', rating: '★★★★★', text: 'Atendimento excelente, quarto impecável e café da manhã muito bem servido. Voltaremos!' },
   { name: 'Carlos A.', rating: '★★★★★', text: 'Localização perfeita e equipe muito atenciosa. Experiência premium do início ao fim.' },
   { name: 'Fernanda R.', rating: '★★★★☆', text: 'Tudo ótimo. Sugestão: mais opções sem lactose no café. No geral, excelente!' },
@@ -75,301 +77,245 @@ const reviews = [
   { name: 'Patrícia M.', rating: '★★★★★', text: 'Check-in rápido, recepção prestativa e estrutura impecável. Nota 10.' },
 ];
 
-const HomePage = () => {
+// Video background component
+function VideoBackground({ videoUrl }: { videoUrl?: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  // Default video URL
+  const defaultVideo = 'https://www.dropbox.com/scl/fi/4ehdjudid9l7uwdnnz8z1/urubici-park-hotel-apresenta-o.mp4?rlkey=1cbsw7stm5qpwpuq7irfbw3to&st=nw959pl5&dl=1';
+  const src = videoUrl || defaultVideo;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleReady = () => setVideoReady(true);
+
+    if (video.readyState >= 4) {
+      setVideoReady(true);
+    } else {
+      video.addEventListener('loadeddata', handleReady, { once: true });
+    }
+
+    return () => {
+      video.removeEventListener('loadeddata', handleReady);
+    };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-0">
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        className="w-full h-full object-cover transition-opacity duration-700"
+        style={{ opacity: prefersReducedMotion || videoReady ? 1 : 0 }}
+      >
+        <source src={src} type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+    </div>
+  );
+}
+
+/**
+ * Dynamic Home Page
+ * Loads configuration from API via get_home_config
+ * Falls back to static content if API unavailable
+ */
+export default function DynamicHomePage() {
   const { t, i18n } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const langMenuRef = useRef<HTMLDivElement>(null);
-  const { language, setLanguage } = useLanguage();
-  const languages: Language[] = ['pt-BR', 'es', 'en', 'de'];
+  const [isLoading, setIsLoading] = useState(true);
+  const [homeConfig, setHomeConfig] = useState<HomeConfigData | null>(null);
+  const [useFallback, setUseFallback] = useState(false);
+  
+  const propertyId = usePropertyId();
+  const locale = useLocale();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    let mounted = true;
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
-        setLangMenuOpen(false);
+    async function loadHomeConfig() {
+      setIsLoading(true);
+      
+      try {
+        const config = await getHomeConfig(locale, propertyId);
+        
+        if (mounted) {
+          if (config) {
+            setHomeConfig(config);
+            setUseFallback(false);
+          } else {
+            setUseFallback(true);
+          }
+        }
+      } catch (error) {
+        console.error('[DynamicHomePage] Error loading config:', error);
+        if (mounted) {
+          setUseFallback(true);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
+    }
+
+    loadHomeConfig();
+
+    // Scroll handler
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      mounted = false;
+      window.removeEventListener('scroll', handleScroll);
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [propertyId, locale]);
 
-  const handleLanguageChange = (lang: Language) => {
-    setLanguage(lang);
-    i18n.changeLanguage(lang);
-    setLangMenuOpen(false);
-  };
+  // Get data from API or use fallback
+  const stickers = (homeConfig?.stickers?.map(s => ({ icon: s.icon, text: s.text })) || DEFAULT_STICKERS);
+  const shortcuts = homeConfig?.navigation?.map((nav, index) => {
+    const colors = [
+      { color: 'bg-blue-500/20', borderColor: 'border-blue-400/30', iconColor: 'text-blue-300' },
+      { color: 'bg-purple-500/20', borderColor: 'border-purple-400/30', iconColor: 'text-purple-300' },
+      { color: 'bg-orange-500/20', borderColor: 'border-orange-400/30', iconColor: 'text-orange-300' },
+      { color: 'bg-red-500/20', borderColor: 'border-red-400/30', iconColor: 'text-red-300' },
+      { color: 'bg-cyan-500/20', borderColor: 'border-cyan-400/30', iconColor: 'text-cyan-300' },
+      { color: 'bg-yellow-500/20', borderColor: 'border-yellow-400/30', iconColor: 'text-yellow-300' },
+    ];
+    const c = colors[index % colors.length];
+    return {
+      icon: nav.icon || 'ri-file-list-line',
+      label: nav.label,
+      to: nav.url,
+      ...c,
+    } as ShortcutItem;
+  }) || DEFAULT_SHORTCUTS;
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const videoUrl = homeConfig?.background_video?.url;
+  const pageTitle = homeConfig?.title || t('heroTitle');
+  const pageSubtitle = homeConfig?.subtitle || t('heroSubtitle');
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen relative overflow-hidden">
+        <div className="fixed inset-0 bg-gradient-to-b from-[#1a5276] to-[#0d2f47]" />
+        <div className="relative z-10 flex items-center justify-center h-screen">
+          <div className="text-white text-center">
+            <i className="ri-loader-4-line text-4xl animate-spin mb-4" />
+            <p>Carregando...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Video Background */}
+      <VideoBackground videoUrl={videoUrl} />
+
       {/* Header */}
-      <header
-        className={`w-full py-4 px-4 relative transition-all duration-300 ${isScrolled ? 'fixed top-0 left-0 right-0 z-50 bg-white shadow-lg' : ''
-          }`}
-      >
-        <div className="max-w-md mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button
-                className={`w-10 h-10 backdrop-blur-md rounded-full flex items-center justify-center overflow-hidden shadow-lg hover:scale-105 transition-all cursor-pointer ${isScrolled
-                    ? 'bg-blue-50 border border-blue-200'
-                    : 'bg-white/20 border border-white/30 hover:bg-white/30'
-                  }`}
-                title="Ir para página inicial"
-                aria-label="Ir para página inicial"
-              >
-                <img
-                  alt="Urubici Park Hotel"
-                  className="w-full h-full object-cover"
-                  src="https://public.readdy.ai/ai/img_res/90171d99-2a4d-411b-855c-8e594b40cefb.png"
-                />
-              </button>
-              <button
-                className={`drop-shadow-lg hover:opacity-80 transition-all cursor-pointer text-left ${isScrolled ? 'text-blue-600' : 'text-white'
-                  }`}
-                title="Ir para página inicial"
-                aria-label="Ir para página inicial"
-              >
-                <h1
-                  className={`font-bold text-lg drop-shadow-md whitespace-nowrap ${isScrolled ? 'text-blue-600' : 'text-blue-300'
-                    }`}
-                >
-                  Urubici Park Hotel
-                </h1>
-                <p
-                  className={`text-xs drop-shadow-sm mt-0.5 leading-tight ${isScrolled ? 'text-gray-600' : 'text-white/90'
-                    }`}
-                >
-                  Hospedagem Premium, experiência única na Serra.
-                </p>
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* Language Switcher */}
-              <div className="relative" ref={langMenuRef}>
-                <button
-                  className={`w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all ${isScrolled
-                      ? 'bg-blue-50 hover:bg-blue-100 border border-blue-200'
-                      : 'bg-white/10 hover:bg-white/20 border border-white/20'
-                    }`}
-                  onClick={() => setLangMenuOpen(!langMenuOpen)}
-                  title="Alterar idioma"
-                  aria-label="Alterar idioma do site"
-                  aria-expanded={langMenuOpen}
-                >
-                  <i className={`ri-global-line text-lg ${isScrolled ? 'text-blue-600' : 'text-white'}`}></i>
-                </button>
-                {langMenuOpen && (
-                  <div className="absolute right-0 top-12 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 py-2 min-w-[140px] z-[60]">
-                    {languages.map((lang) => (
-                      <button
-                        key={lang}
-                        onClick={() => handleLanguageChange(lang)}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-white/50 transition-colors ${
-                          language === lang 
-                            ? 'text-blue-600 font-semibold' 
-                            : 'text-gray-700'
-                        }`}
-                      >
-                        {languageLabels[lang]}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#1a5276]/95 backdrop-blur-md shadow-lg' : ''}`}>
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {homeConfig?.logo_url && (
+              <img src={homeConfig.logo_url} alt="Logo" className="w-10 h-10 rounded-lg object-cover" />
+            )}
+            <span className="text-white font-bold text-lg">{pageTitle}</span>
           </div>
+          <Link to={MAPS_URL} target="_blank" className="text-white/80 hover:text-white">
+            <i className="ri-map-pin-line text-xl" />
+          </Link>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <div className="relative z-10 max-w-md mx-auto pt-4">
-        {/* Top Sticker - Above Hero */}
-        <TopSticker messages={stickerMessages} />
+      {/* Main Content */}
+      <div className="relative z-10 max-w-md mx-auto pt-20 pb-8">
+        {/* Top Sticker */}
+        <div className="px-4">
+          <TopSticker messages={stickers} />
+        </div>
 
+        {/* Hero */}
         <div className="px-4 mt-3 mb-3 text-center">
           <h2 className="text-white font-bold text-3xl mb-2 drop-shadow-2xl leading-tight">
-            {t('heroTitle')}
+            {pageTitle}
           </h2>
           <h3 className="text-blue-100 font-bold text-2xl mb-3 drop-shadow-xl">
-            {t('heroSubtitle')}
+            {pageSubtitle}
           </h3>
           <p className="text-white/90 text-base drop-shadow-lg leading-relaxed max-w-sm mx-auto">
             {t('heroDescription')}
           </p>
         </div>
 
-        {/* Quick Shortcuts - Direct on hero area */}
+        {/* Quick Shortcuts */}
         <QuickShortcuts items={shortcuts} />
 
         {/* Guide Cards */}
         <div className="px-4 mb-6">
           <div className="px-4 mb-3">
             <h3 className="text-white font-bold text-sm uppercase tracking-wider text-center flex items-center justify-center gap-2 drop-shadow-md">
-              <i className="ri-grid-line text-yellow-400"></i>
-              {t('guideSectionTitle')}
-              <i className="ri-grid-line text-yellow-400"></i>
+              <i className="ri-compass-discover-line text-yellow-400" />
+              {t('exploreGuide')}
             </h3>
-            <p className="text-white/80 text-xs text-center mt-1 drop-shadow-sm">
-              {t('guideSectionSubtitle')}
-            </p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            {/* 1 - Sua Estadia */}
-            <Link
-              to="/sua-estadia"
-              className="bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer group"
-              title="Check-in, Check-out, Wi-Fi e informações essenciais"
-            >
-              <div className="w-12 h-12 bg-[#24577A]/70 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-[#24577A]/90 transition-colors">
-                <i className="ri-hotel-line text-white text-xl"></i>
-              </div>
-              <h3 className="text-white font-bold text-sm text-center mb-1 drop-shadow-sm">
-                Sua Estadia
-              </h3>
-              <p className="text-[#7BB3E0] text-xs text-center font-medium mb-1">
-                Check-in | Check-out | Wi-Fi
-              </p>
-              <p className="text-white/80 text-xs text-center leading-snug">
-                Check-in, Check-out, Wi-Fi e informações essenciais.
-              </p>
-            </Link>
 
-            {/* 2 - Regulamentos */}
-            <Link
-              to="/regras-do-hotel"
-              className="bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-2xl hover:scale-105 cursor-pointer group"
-              title="Silêncio, visitantes, responsabilidades e normas"
-            >
-              <div className="w-12 h-12 bg-[#6B4E8A]/70 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-[#6B4E8A]/90 transition-colors">
-                <i className="ri-file-list-3-line text-white text-xl"></i>
+          {/* Navigation Cards */}
+          {useFallback ? DEFAULT_NAV_CARDS : homeConfig ? API_NAV_CARDS.map(card => (
+            <Link key={card.title} to={card.link} className="block mb-3">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/25 shadow-xl overflow-hidden hover:bg-white/15 transition-colors">
+                <div className="p-4 flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${card.color}`}>
+                    <i className={`${card.icon} text-white text-xl`} />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-white font-bold text-base">{card.title}</h4>
+                    <p className="text-white/70 text-sm">{card.description}</p>
+                  </div>
+                  <i className="ri-arrow-right-line text-white/40" />
+                </div>
               </div>
-              <h3 className="text-white font-bold text-sm text-center mb-1 drop-shadow-sm">
-                Regulamentos
-              </h3>
-              <p className="text-[#C4A8E0] text-xs text-center font-medium mb-1">
-                Silêncio | Visitantes | Normas
-              </p>
-              <p className="text-white/80 text-xs text-center leading-snug">
-                Silêncio, visitantes, responsabilidades e normas.
-              </p>
             </Link>
-
-            {/* 3 - Café & Gastronomia */}
-            <Link
-              to="/cafe-gastronomia"
-              className="bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-2xl hover:scale-105 cursor-pointer group"
-              title="Café da manhã e Restaurante Pimenta Rosa (parceiro)"
-            >
-              <div className="w-12 h-12 bg-[#C0622A]/70 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-[#C0622A]/90 transition-colors">
-                <i className="ri-restaurant-line text-white text-xl"></i>
-              </div>
-              <h3 className="text-white font-bold text-sm text-center mb-1 drop-shadow-sm">
-                Café &amp; Gastronomia
-              </h3>
-              <p className="text-[#F4B07A] text-xs text-center font-medium mb-1">
-                Café da Manhã | Restaurante
-              </p>
-              <p className="text-white/80 text-xs text-center leading-snug">
-                Café da manhã e Restaurante Pimenta Rosa (parceiro).
-              </p>
-            </Link>
-
-            {/* 4 - Lazer & Estrutura */}
-            <Link
-              to="/lazer-estrutura"
-              className="bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-2xl hover:scale-105 cursor-pointer group"
-              title="Salão de jogos, estacionamento e carregamento elétrico"
-            >
-              <div className="w-12 h-12 bg-[#4EA16C]/70 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-[#4EA16C]/90 transition-colors">
-                <i className="ri-billiards-line text-white text-xl"></i>
-              </div>
-              <h3 className="text-white font-bold text-sm text-center mb-1 drop-shadow-sm">
-                Lazer & Estrutura
-              </h3>
-              <p className="text-[#8FD4A8] text-xs text-center font-medium mb-1">
-                Jogos | Estacionamento | EV
-              </p>
-              <p className="text-white/80 text-xs text-center leading-snug">
-                Salão de jogos, estacionamento e carregamento elétrico.
-              </p>
-            </Link>
-
-            {/* 5 - Eventos & Corporativo */}
-            <Link
-              to="/eventos-corporativo"
-              className="bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-2xl hover:scale-105 cursor-pointer group"
-              title="Auditório e informações para eventos"
-            >
-              <div className="w-12 h-12 bg-[#2A6B8A]/70 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-[#2A6B8A]/90 transition-colors">
-                <i className="ri-presentation-line text-white text-xl"></i>
-              </div>
-              <h3 className="text-white font-bold text-sm text-center mb-1 drop-shadow-sm">
-                Eventos & Corporativo
-              </h3>
-              <p className="text-[#7EC8E8] text-xs text-center font-medium mb-1">
-                Auditório | Eventos
-              </p>
-              <p className="text-white/80 text-xs text-center leading-snug">
-                Auditório e informações para eventos.
-              </p>
-            </Link>
-
-            {/* 6 - Links Úteis */}
-            <Link
-              to="/links-uteis"
-              className="bg-white/15 backdrop-blur-md hover:bg-white/25 rounded-2xl p-4 transition-all duration-200 border border-white/30 shadow-xl hover:shadow-2xl hover:scale-105 cursor-pointer group"
-              title="Portal Urubici e site oficial"
-            >
-              <div className="w-12 h-12 bg-[#D19248]/70 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-[#D19248]/90 transition-colors">
-                <i className="ri-links-line text-white text-xl"></i>
-              </div>
-              <h3 className="text-white font-bold text-sm text-center mb-1 drop-shadow-sm">
-                Links Úteis
-              </h3>
-              <p className="text-[#E8C088] text-xs text-center font-medium mb-1">
-                Portal Urubici | Site Oficial
-              </p>
-              <p className="text-white/80 text-xs text-center leading-snug">
-                Portal Urubici e site oficial.
-              </p>
-            </Link>
-          </div>
+          )) : null}
         </div>
 
-        {/* Review Carousel */}
-        <ReviewCarousel 
-          reviews={reviews} 
-          reviewUrl={REVIEW_URL}
-          mapsUrl={MAPS_URL}
-        />
-
-        {/* Scroll to Top Button */}
-        <div className="fixed bottom-6 left-4 z-20">
-          <button
-            onClick={scrollToTop}
-            className="w-12 h-12 bg-blue-600/90 hover:bg-blue-700 rounded-full flex items-center justify-center shadow-xl backdrop-blur-md border border-white/30 transition-all duration-300 hover:scale-110 cursor-pointer"
-            aria-label="Voltar ao topo"
-          >
-            <i className="ri-arrow-up-line text-white text-lg"></i>
-          </button>
+        {/* Reviews */}
+        <div className="px-4 mb-6">
+          <ReviewCarousel reviews={DEFAULT_REVIEWS} />
         </div>
       </div>
 
       <PageFooter />
     </div>
   );
-};
+}
 
-export default HomePage;
+// Default navigation cards (fallback)
+const DEFAULT_NAV_CARDS = [
+  { title: 'Sua Estadia', description: 'Check-in, Check-out, Wi-Fi e informações', link: '/sua-estadia', icon: 'ri-hotel-line', color: 'bg-blue-500/20' },
+  { title: 'Café & Gastronomia', description: 'Restaurante e café da manhã', link: '/cafe-gastronomia', icon: 'ri-restaurant-line', color: 'bg-orange-500/20' },
+  { title: 'Lazer & Estrutura', description: 'Estacionamento, jogos e mais', link: '/lazer-estrutura', icon: 'ri-gamepad-line', color: 'bg-green-500/20' },
+  { title: 'Links Úteis', description: 'Emergências, localização e contatos', link: '/links-uteis', icon: 'ri-links-line', color: 'bg-yellow-500/20' },
+];
+
+// API navigation cards (can be expanded later)
+const API_NAV_CARDS = DEFAULT_NAV_CARDS;

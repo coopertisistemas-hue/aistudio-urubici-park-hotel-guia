@@ -3,9 +3,12 @@ import './i18n'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { TenantProvider } from './contexts/TenantContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <TenantProvider>
+      <App />
+    </TenantProvider>
   </StrictMode>,
 )

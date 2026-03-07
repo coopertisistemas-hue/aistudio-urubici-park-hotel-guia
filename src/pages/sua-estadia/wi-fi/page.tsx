@@ -1,30 +1,20 @@
+import DynamicDetailPage from '../../../components/feature/DynamicDetailPage';
 
-import DetailLayout, { type DetailSection } from '../../../components/feature/DetailLayout';
-
-const sections: DetailSection[] = [
+const fallbackSections = [
     {
         icon: 'ri-wifi-line',
-        title: 'Rede Wi-Fi',
-        text: 'Conecte-se à rede UPH01, disponível em todos os ambientes do hotel.',
-    },
-    {
-        icon: 'ri-lock-password-line',
-        title: 'Senha',
-        text: 'A senha da rede é uph.com.br. Ela é válida para todo o hotel.',
-    },
-    {
-        icon: 'ri-information-line',
-        title: 'Orientações',
-        text: 'Em caso de dificuldade de conexão, reinicie o dispositivo e tente novamente. Persistindo o problema, dirija-se à recepção para obter assistência.',
+        title: 'Wi-Fi',
+        text: 'Wi-Fi gratuito disponível em todas as áreas do hotel.',
     },
 ];
 
 const WifiDetailPage = () => (
-    <DetailLayout
+    <DynamicDetailPage
+        apiSlug="sua-estadia/wi-fi"
+        fallbackSections={fallbackSections}
         title="Wi-Fi"
         subtitle="Sua Estadia"
         description="Conecte-se à internet durante sua hospedagem."
-        sections={sections}
         backTo="/sua-estadia"
         backLabel="Voltar para Sua Estadia"
         heroIcon="ri-wifi-line"
