@@ -50,6 +50,7 @@ GROUP BY
     NULLIF(el.event_label, ''),
     NULLIF(el.entity_id::text, ''),
     'unknown'
+  )
 ORDER BY views DESC;
 
 CREATE OR REPLACE VIEW guest_guide.v_cta_clicks AS
