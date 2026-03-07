@@ -20,6 +20,12 @@ interface TrackEventRequest {
   metadata?: Record<string, unknown>;
 }
 
+function asUuidOrNull(value?: string): string | null {
+  if (!value) return null;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(value) ? value : null;
+}
+
 function guestGuideHeaders() {
   return {
     apikey: supabaseServiceKey,
@@ -139,7 +145,7 @@ Deno.serve(async (req) => {
       p_event_category: event_category || null,
       p_event_label: event_label || null,
       p_entity_type: entity_type || null,
-      p_entity_id: entity_id || null,
+      p_entity_id: asUuidOrNull(entity_id),
       p_user_session_id: user_session_id || null,
       p_idempotency_key: idempotency_key || null,
       p_referrer_url: referrer_url || null,
