@@ -98,65 +98,51 @@ Deno.serve(async (req) => {
 
     const homeConfig = configs[0]
 
-    // Buscar videos
+    // ─── Background Video Resolution ─────────────────────────────────────────
+    // Priority: 1) sponsored video, 2) default property video, 3) fallback video
     const videos = await fetchFromGuestGuide(
-      `background_videos?property_id=eq.${property_id}&is_active=eq.true&order=is_sponsored.desc&order=sort_order.asc&limit=2`
+      `background_videos?property_id=eq.${property_id}&is_active=eq.true&deleted_at=is.null&order=is_sponsored.desc,sort_order.asc&limit=5`
     )
 
     let backgroundVideo: VideoInfo | null = null
-    
+
     if (videos && videos.length > 0) {
-      const activeVideo = videos.find((v: any) => !v.is_sponsored || videos[0]?.is_sponsored)
-      if (activeVideo) {
+      // Priority order: 1) sponsored, 2) default property video, 3) first non-sponsored fallback
+      const sponsoredVideo = videos.find((v: any) => v.is_sponsored === true)
+      const defaultVideo = videos.find((v: any) => v.is_default === true && !v.is_sponsored)
+      const fallbackVideo = videos.find((v: any) => !v.is_sponsored)
+      const activeVideo = sponsoredVideo ?? defaultVideo ?? fallbackVideo ?? videos[0]
+
+      if (activeVideo && activeVideo.video_url) {
         backgroundVideo = {
           id: activeVideo.id,
           url: activeVideo.video_url,
-          thumbnail_url: activeVideo.thumbnail_url,
-          title: activeVideo.title,
-          is_sponsored: activeVideo.is_sponsored,
-          sponsor_name: activeVideo.sponsor_name
-        }
-      } else if (videos.length > 1) {
-        const defaultVideo = videos.find((v: any) => !v.is_sponsored)
-        if (defaultVideo) {
-          backgroundVideo = {
-            id: defaultVideo.id,
-            url: defaultVideo.video_url,
-            thumbnail_url: defaultVideo.thumbnail_url,
-            title: defaultVideo.title,
-            is_sponsored: false,
-            sponsor_name: null
-          }
+          thumbnail_url: activeVideo.thumbnail_url ?? null,
+          title: activeVideo.title ?? null,
+          is_sponsored: activeVideo.is_sponsored ?? false,
+          sponsor_name: activeVideo.sponsor_name ?? null,
         }
       }
+    }
 
-      if (!backgroundVideo?.url && homeConfig.background_video_url) {
-        backgroundVideo = {
-          id: homeConfig.id,
-          url: homeConfig.background_video_url,
-          thumbnail_url: null,
-          title: null,
-          is_sponsored: false,
-          sponsor_name: null
-        }
-      } else if (!backgroundVideo?.url && homeConfig.background_video_fallback_url) {
-        backgroundVideo = {
-          id: homeConfig.id,
-          url: homeConfig.background_video_fallback_url,
-          thumbnail_url: null,
-          title: null,
-          is_sponsored: false,
-          sponsor_name: null
-        }
-      }
-    } else if (homeConfig.background_video_url) {
+    // Final fallback to home_config video URL fields (legacy support)
+    if (!backgroundVideo && homeConfig.background_video_url) {
       backgroundVideo = {
         id: homeConfig.id,
         url: homeConfig.background_video_url,
         thumbnail_url: null,
         title: null,
         is_sponsored: false,
-        sponsor_name: null
+        sponsor_name: null,
+      }
+    } else if (!backgroundVideo && homeConfig.background_video_fallback_url) {
+      backgroundVideo = {
+        id: homeConfig.id,
+        url: homeConfig.background_video_fallback_url,
+        thumbnail_url: null,
+        title: null,
+        is_sponsored: false,
+        sponsor_name: null,
       }
     }
 
