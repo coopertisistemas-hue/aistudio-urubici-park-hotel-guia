@@ -3,64 +3,122 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Guia do Hóspede - Urubici Park Hotel | Informações para sua Estadia</title>
+
+    <title>Guest Guide | Host Connect</title>
     <meta
       name="description"
-      content="Guia completo do hóspede do Urubici Park Hotel. Acesse informações importantes sobre sua estadia, serviços do hotel, localização e contatos de emergência."
+      content="Guest Guide digital for hotels and inns with stay information, contacts and local services."
     />
-    <meta
-      name="keywords"
-      content="guia hóspede urubici park hotel,informações hotel urubici,serviços hotel serra,hospedagem urubici,hotel urubici sc"
-    />
-    <meta name="author" content="Urubici Park Hotel" />
-    <meta name="robots" content="noindex, nofollow" />
-    
-    <!-- Open Graph -->
+    <meta name="author" content="Host Connect" />
+    <meta name="robots" content="index, follow" />
+
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Guia do Hóspede - Urubici Park Hotel" />
+    <meta property="og:title" content="Guest Guide | Host Connect" />
     <meta
       property="og:description"
-      content="Acesse informações importantes para sua estadia no Urubici Park Hotel."
+      content="Digital guest guide with stay details, useful links and partner services."
     />
-    <meta
-      property="og:image"
-      content="https://public.readdy.ai/ai/img_res/90171d99-2a4d-411b-855c-8e594b40cefb.png"
-    />
-    <meta property="og:site_name" content="Urubici Park Hotel - Guia do Hóspede" />
+    <meta property="og:site_name" content="Guest Guide" />
     <meta property="og:locale" content="pt_BR" />
-    
-    <!-- Twitter Card -->
+    <meta property="og:url" content="https://guestguide.hostconnect.app" />
+    <meta property="og:image" content="https://guestguide.hostconnect.app/og-image.png" />
+
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Guia do Hóspede - Urubici Park Hotel" />
+    <meta name="twitter:title" content="Guest Guide | Host Connect" />
     <meta
       name="twitter:description"
-      content="Acesse informações importantes para sua estadia no Urubici Park Hotel."
+      content="Digital guest guide with stay details, useful links and partner services."
     />
-    <meta
-      name="twitter:image"
-      content="https://public.readdy.ai/ai/img_res/90171d99-2a4d-411b-855c-8e594b40cefb.png"
-    />
-    
-    <!-- Location -->
-    <meta name="geo.region" content="BR-SC" />
-    <meta name="geo.placename" content="Urubici" />
-    <meta name="geo.position" content="-27.9947027;-49.5843818" />
-    <meta name="ICBM" content="-27.9947027, -49.5843818" />
-    
-    <!-- Theme -->
-    <meta name="theme-color" content="#14B8A6" />
-    <meta name="msapplication-TileColor" content="#14B8A6" />
+    <meta name="twitter:image" content="https://guestguide.hostconnect.app/og-image.png" />
+
+    <meta name="theme-color" content="#24577A" />
+    <meta name="msapplication-TileColor" content="#24577A" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Guia do Hóspede - UPH" />
-    
-    <!-- Remix Icon -->
+    <meta name="apple-mobile-web-app-title" content="Guest Guide" />
+
+    <script id="ld-json-lodging" type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LodgingBusiness",
+        "name": "Guest Guide Property",
+        "description": "Digital guest guide for hospitality operations.",
+        "url": "https://guestguide.hostconnect.app",
+        "image": "https://guestguide.hostconnect.app/og-image.png",
+        "telephone": "+55-00-0000-0000",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Urubici",
+          "addressRegion": "SC",
+          "addressCountry": "BR"
+        }
+      }
+    </script>
+
+    <script>
+      (function applyMetadataFallback() {
+        const defaults = {
+          title: 'Guest Guide | Host Connect',
+          description: 'Digital guest guide with stay details, useful links and partner services.',
+          siteName: 'Guest Guide',
+          locale: 'pt_BR',
+          url: window.location.origin,
+          image: 'https://guestguide.hostconnect.app/og-image.png',
+          lodgingName: 'Guest Guide Property',
+          lodgingPhone: '+55-00-0000-0000',
+          locality: 'Urubici',
+          region: 'SC',
+          country: 'BR'
+        };
+
+        const runtime = window.__GUEST_GUIDE_META__ || {};
+        const meta = { ...defaults, ...runtime };
+
+        function setMeta(selector, content) {
+          const el = document.querySelector(selector);
+          if (el && content) {
+            el.setAttribute('content', content);
+          }
+        }
+
+        document.title = meta.title;
+        setMeta('meta[name="description"]', meta.description);
+        setMeta('meta[property="og:title"]', meta.title);
+        setMeta('meta[property="og:description"]', meta.description);
+        setMeta('meta[property="og:site_name"]', meta.siteName);
+        setMeta('meta[property="og:locale"]', meta.locale);
+        setMeta('meta[property="og:url"]', meta.url);
+        setMeta('meta[property="og:image"]', meta.image);
+        setMeta('meta[name="twitter:title"]', meta.title);
+        setMeta('meta[name="twitter:description"]', meta.description);
+        setMeta('meta[name="twitter:image"]', meta.image);
+
+        const ld = document.getElementById('ld-json-lodging');
+        if (ld) {
+          ld.textContent = JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'LodgingBusiness',
+            name: meta.lodgingName,
+            description: meta.description,
+            url: meta.url,
+            image: meta.image,
+            telephone: meta.lodgingPhone,
+            address: {
+              '@type': 'PostalAddress',
+              addressLocality: meta.locality,
+              addressRegion: meta.region,
+              addressCountry: meta.country
+            }
+          });
+        }
+      })();
+    </script>
+
     <link
       href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css"
       rel="stylesheet"
     />
-    
-    <!-- Font Awesome -->
+
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
