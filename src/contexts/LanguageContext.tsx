@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useEffect, useCallback, useContext, type ReactNode } from 'react';
 import i18n from '../i18n';
 

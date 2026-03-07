@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import DetailLayout, { type DetailSection } from './DetailLayout';
-import { getPage, mapBlocksToSections, type PageData, type CTABlock, trackEvent } from '../../services/guestGuideService';
+import { getPage, mapBlocksToSections, type PageData, type CTABlock, trackPageView, trackCtaClick } from '../../services/guestGuideService';
 import { useTenant, usePropertyId, useLocale } from '../../contexts/TenantContext';
 
 /**
@@ -126,7 +126,7 @@ export default function DynamicPage({
       setError(null);
       
       try {
-        const data = await getPage(slug, locale, propertyId);
+        const data = await getPage(slug, propertyId, locale);
         
         if (mounted) {
           if (data && data.blocks && data.blocks.length > 0) {
@@ -136,7 +136,7 @@ export default function DynamicPage({
             setCtaBlocks(mappedCtas);
             
             // Track page view
-            trackEvent('page_view', slug, { source: 'dynamic_route' }, propertyId);
+            trackPageView(slug, data.id);
           } else {
             // Page not found in API - show 404-like state
             setError('Página não encontrada');
@@ -226,7 +226,7 @@ export default function DynamicPage({
       heroIconColor={fallbackHeroIconColor}
       containerLabel={fallbackContainerLabel || title}
       containerLabelIcon={fallbackContainerLabelIcon}
-      afterSections={renderCTABlocks(ctaBlocks, propertyId)}
+      afterSections={renderCTABlocks(ctaBlocks)}
     />
   );
 }
@@ -234,7 +234,7 @@ export default function DynamicPage({
 /**
  * Render CTA blocks as afterSections content
  */
-function renderCTABlocks(ctaBlocks: CTABlock[], propertyId: string) {
+function renderCTABlocks(ctaBlocks: CTABlock[]) {
   if (ctaBlocks.length === 0) return null;
 
   return (
@@ -244,7 +244,7 @@ function renderCTABlocks(ctaBlocks: CTABlock[], propertyId: string) {
           key={cta.id}
           href={cta.url}
           className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded-xl transition-colors"
-          onClick={() => trackEvent('cta_click', cta.title, { url: cta.url, page_slug: 'dynamic' }, propertyId)}
+          onClick={() => trackCtaClick('dynamic', cta.url, 'dynamic')}
         >
           <i className="ri-phone-line text-lg" />
           {cta.label}

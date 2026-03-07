@@ -108,7 +108,7 @@ export default function DynamicIndexPage({
       mounted = false;
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [indexSlug, propertyId, locale]);
+  }, [fallbackSubcategories, indexSlug, propertyId, locale]);
 
   const colors = DEFAULT_COLORS[indexSlug] || DEFAULT_COLORS['default'];
   const heroColor = propHeroIconColor || colors.color;

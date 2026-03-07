@@ -1,7 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect } from 'react';
 import DetailLayout, { type DetailSection } from './DetailLayout';
-import { getPage, mapBlocksToSections, type PageData, type CTABlock, trackEvent } from '../../services/guestGuideService';
-import { useTenant, usePropertyId, useLocale } from '../../contexts/TenantContext';
+import { getPage, mapBlocksToSections, type PageData, type CTABlock, trackPageView, trackCtaClick } from '../../services/guestGuideService';
+import { usePropertyId, useLocale } from '../../contexts/TenantContext';
 
 export interface DynamicDetailPageProps {
   /** The API slug for this page (e.g., 'sua-estadia/check-in') */
@@ -57,7 +58,7 @@ export function useDynamicPage(apiSlug: string, fallbackSections: DetailSection[
       setIsLoading(true);
       
       try {
-        const data = await getPage(apiSlug, locale, propertyId);
+        const data = await getPage(apiSlug, propertyId, locale);
         
         if (mounted) {
           if (data && data.blocks && data.blocks.length > 0) {
@@ -69,7 +70,7 @@ export function useDynamicPage(apiSlug: string, fallbackSections: DetailSection[
             setIsUsingFallback(false);
             
             // Track page view
-            trackEvent('page_view', apiSlug, { source: 'dynamic' }, propertyId);
+            trackPageView(apiSlug, data.id);
           } else {
             // API returned no data - use fallback
             setSections(fallbackSections);
@@ -96,7 +97,7 @@ export function useDynamicPage(apiSlug: string, fallbackSections: DetailSection[
     return () => {
       mounted = false;
     };
-  }, [apiSlug, propertyId, locale]);
+  }, [apiSlug, fallbackSections, propertyId, locale]);
 
   return { sections, ctaBlocks, isLoading, isUsingFallback, pageData };
 }
@@ -114,7 +115,7 @@ function renderCTABlocks(ctaBlocks: CTABlock[]) {
           key={cta.id}
           href={cta.url}
           className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded-xl transition-colors"
-          onClick={() => trackEvent('cta_click', cta.title, { url: cta.url, page_slug: 'dynamic' })}
+          onClick={() => trackCtaClick('dynamic', cta.url, 'dynamic')}
         >
           <i className="ri-phone-line text-lg" />
           {cta.label}

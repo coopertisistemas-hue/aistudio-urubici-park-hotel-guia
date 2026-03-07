@@ -381,7 +381,7 @@ export interface CTABlock {
 export interface DetailSection {
   icon: string;
   title: string;
-  text?: string;
+  text: string;
   imageUrl?: string;
   badge?: string;
   badgeColor?: string;

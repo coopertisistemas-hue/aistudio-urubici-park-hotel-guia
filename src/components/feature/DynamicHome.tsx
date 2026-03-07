@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useTenant } from '../contexts/TenantContext';
-import { getHomeConfig, trackEvent } from '../services/guestGuideService';
+import { useTenant } from '../../contexts/TenantContext';
+import { trackPageView } from '../../services/guestGuideService';
 
 /**
  * Dynamic Home Page
@@ -14,7 +14,7 @@ export default function DynamicHome() {
   useEffect(() => {
     // Track home page view
     if (!tenantLoading && config) {
-      trackEvent('page_view', 'home', { source: 'dynamic_home' }, config.propertyId);
+      trackPageView('home');
     }
   }, [tenantLoading, config]);
 
@@ -38,7 +38,6 @@ export default function DynamicHome() {
   // Use config from tenant context
   const title = config?.title || 'Guest Guide';
   const subtitle = config?.subtitle || '';
-  const primaryColor = config?.primaryColor || '#24577A';
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#1a5276] to-[#0d2f47]">

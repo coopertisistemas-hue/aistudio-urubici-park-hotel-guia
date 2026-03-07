@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import PageFooter from '../../components/feature/PageFooter';
 import QuickShortcuts, { type ShortcutItem } from '../../components/QuickShortcuts';
 import TopSticker from '../../components/TopSticker';
 import ReviewCarousel from '../../components/ReviewCarousel';
-import { getHomeConfig, type HomeConfigData, DEFAULT_PROPERTY_ID } from '../../services/guestGuideService';
-import { useTenant, usePropertyId, useLocale } from '../../contexts/TenantContext';
+import { getHomeConfig, type HomeConfigData } from '../../services/guestGuideService';
+import { usePropertyId, useLocale } from '../../contexts/TenantContext';
 
 const REVIEW_URL = 'https://www.google.com/search?q=Urubici+Park+Hotel+avaliacoes';
 const MAPS_URL = 'https://www.google.com/maps/place/Urubici+Park+Hotel';
@@ -77,68 +77,13 @@ const DEFAULT_REVIEWS = [
   { name: 'Patrícia M.', rating: '★★★★★', text: 'Check-in rápido, recepção prestativa e estrutura impecável. Nota 10.' },
 ];
 
-// Video background component
-function VideoBackground({ videoUrl }: { videoUrl?: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoReady, setVideoReady] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  // Default video URL
-  const defaultVideo = 'https://www.dropbox.com/scl/fi/4ehdjudid9l7uwdnnz8z1/urubici-park-hotel-apresenta-o.mp4?rlkey=1cbsw7stm5qpwpuq7irfbw3to&st=nw959pl5&dl=1';
-  const src = videoUrl || defaultVideo;
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-    
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handleReady = () => setVideoReady(true);
-
-    if (video.readyState >= 4) {
-      setVideoReady(true);
-    } else {
-      video.addEventListener('loadeddata', handleReady, { once: true });
-    }
-
-    return () => {
-      video.removeEventListener('loadeddata', handleReady);
-    };
-  }, []);
-
-  return (
-    <div className="fixed inset-0 z-0">
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        className="w-full h-full object-cover transition-opacity duration-700"
-        style={{ opacity: prefersReducedMotion || videoReady ? 1 : 0 }}
-      >
-        <source src={src} type="video/mp4" />
-      </video>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
-    </div>
-  );
-}
-
 /**
  * Dynamic Home Page
  * Loads configuration from API via get_home_config
  * Falls back to static content if API unavailable
  */
 export default function DynamicHomePage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [homeConfig, setHomeConfig] = useState<HomeConfigData | null>(null);
@@ -154,7 +99,7 @@ export default function DynamicHomePage() {
       setIsLoading(true);
       
       try {
-        const config = await getHomeConfig(locale, propertyId);
+        const config = await getHomeConfig(propertyId, locale);
         
         if (mounted) {
           if (config) {
@@ -208,9 +153,17 @@ export default function DynamicHomePage() {
     } as ShortcutItem;
   }) || DEFAULT_SHORTCUTS;
 
-  const videoUrl = homeConfig?.background_video?.url;
   const pageTitle = homeConfig?.title || t('heroTitle');
   const pageSubtitle = homeConfig?.subtitle || t('heroSubtitle');
+  const guideCards = (useFallback || !homeConfig?.navigation?.length)
+    ? DEFAULT_NAV_CARDS
+    : homeConfig.navigation.map((nav) => ({
+      title: nav.label,
+      description: '',
+      link: nav.url,
+      icon: nav.icon || 'ri-file-list-line',
+      color: 'bg-blue-500/20',
+    }));
 
   // Loading state
   if (isLoading) {
@@ -229,9 +182,6 @@ export default function DynamicHomePage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Video Background */}
-      <VideoBackground videoUrl={videoUrl} />
-
       {/* Header */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#1a5276]/95 backdrop-blur-md shadow-lg' : ''}`}>
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
@@ -280,7 +230,7 @@ export default function DynamicHomePage() {
           </div>
 
           {/* Navigation Cards */}
-          {useFallback ? DEFAULT_NAV_CARDS : homeConfig ? API_NAV_CARDS.map(card => (
+          {guideCards.map(card => (
             <Link key={card.title} to={card.link} className="block mb-3">
               <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/25 shadow-xl overflow-hidden hover:bg-white/15 transition-colors">
                 <div className="p-4 flex items-center gap-4">
@@ -295,12 +245,12 @@ export default function DynamicHomePage() {
                 </div>
               </div>
             </Link>
-          )) : null}
+          ))}
         </div>
 
         {/* Reviews */}
         <div className="px-4 mb-6">
-          <ReviewCarousel reviews={DEFAULT_REVIEWS} />
+          <ReviewCarousel reviews={DEFAULT_REVIEWS} reviewUrl={REVIEW_URL} mapsUrl={MAPS_URL} />
         </div>
       </div>
 
@@ -317,5 +267,3 @@ const DEFAULT_NAV_CARDS = [
   { title: 'Links Úteis', description: 'Emergências, localização e contatos', link: '/links-uteis', icon: 'ri-links-line', color: 'bg-yellow-500/20' },
 ];
 
-// API navigation cards (can be expanded later)
-const API_NAV_CARDS = DEFAULT_NAV_CARDS;

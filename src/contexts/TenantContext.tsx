@@ -1,13 +1,15 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getHomeConfig, type HomeConfigData } from '../services/guestGuideService';
+import { getHomeConfig, type HomeConfigData, type Locale } from '../services/guestGuideService';
 
 export interface TenantConfig {
   propertyId: string;
   orgId: string;
-  locale: string;
+  locale: Locale;
   title: string;
   subtitle: string | null;
   logoUrl: string | null;
+  backgroundVideoUrl: string | null;
   primaryColor: string | null;
   secondaryColor: string | null;
   showWeather: boolean;
@@ -45,16 +47,16 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                        localStorage.getItem('guestguide_property_id') || 
                        DEFAULT_PROPERTY_ID;
     
-    const locale = urlParams.get('locale') || 
+    const locale = (urlParams.get('locale') || 
                    localStorage.getItem('guestguide_locale') || 
-                   DEFAULT_LOCALE;
+                   DEFAULT_LOCALE) as Locale;
 
     // Persist selection
     localStorage.setItem('guestguide_property_id', propertyId);
     localStorage.setItem('guestguide_locale', locale);
 
     try {
-      const homeConfig = await getHomeConfig(locale, propertyId);
+      const homeConfig = await getHomeConfig(propertyId, locale);
       
       if (homeConfig) {
         setConfig({
@@ -64,6 +66,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
           title: homeConfig.title,
           subtitle: homeConfig.subtitle,
           logoUrl: homeConfig.logo_url,
+          backgroundVideoUrl: homeConfig.background_video?.url || null,
           primaryColor: homeConfig.primary_color,
           secondaryColor: homeConfig.secondary_color,
           showWeather: homeConfig.show_weather,
@@ -78,6 +81,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
           title: 'Urubici Park Hotel',
           subtitle: 'Hospedagem Premium',
           logoUrl: null,
+          backgroundVideoUrl: null,
           primaryColor: '#24577A',
           secondaryColor: '#6B4E8A',
           showWeather: true,
@@ -125,9 +129,9 @@ export function usePropertyId(): string {
 /**
  * Hook to get current locale
  */
-export function useLocale(): string {
+export function useLocale(): Locale {
   const { config } = useTenant();
-  return config?.locale || DEFAULT_LOCALE;
+  return (config?.locale || DEFAULT_LOCALE) as Locale;
 }
 
 /**

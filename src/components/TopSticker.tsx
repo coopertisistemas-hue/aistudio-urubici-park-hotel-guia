@@ -60,7 +60,7 @@ const TopSticker = ({ messages }: TopStickerProps) => {
               {weatherIcon}
             </span>
             <span className="text-white/90 text-xs font-medium whitespace-nowrap">
-              {temperature}°C em Urubici
+              {temperature}°C
             </span>
           </div>
 
@@ -89,3 +89,4 @@ const TopSticker = ({ messages }: TopStickerProps) => {
 };
 
 export default TopSticker;
+

@@ -1,7 +1,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-const VideoBackground = () => {
+interface VideoBackgroundProps {
+  videoUrl?: string | null;
+}
+
+const DEFAULT_VIDEO_URL = 'https://www.dropbox.com/scl/fi/4ehdjudid9l7uwdnnz8z1/urubici-park-hotel-apresenta-o.mp4?rlkey=1cbsw7stm5qpwpuq7irfbw3to&st=nw959pl5&dl=1';
+
+const VideoBackground = ({ videoUrl }: VideoBackgroundProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoReady, setVideoReady] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -47,7 +53,7 @@ const VideoBackground = () => {
         style={{ opacity: prefersReducedMotion || videoReady ? 1 : 0 }}
       >
         <source
-          src="https://www.dropbox.com/scl/fi/4ehdjudid9l7uwdnnz8z1/urubici-park-hotel-apresenta-o.mp4?rlkey=1cbsw7stm5qpwpuq7irfbw3to&st=nw959pl5&dl=1"
+          src={videoUrl || DEFAULT_VIDEO_URL}
           type="video/mp4"
         />
         <source

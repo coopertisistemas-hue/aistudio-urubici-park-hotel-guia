@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage, languageLabels, type Language } from '../../contexts/LanguageContext';
+import { useTenant } from '../../contexts/TenantContext';
 
 interface PageHeaderProps {
   isScrolled: boolean;
@@ -12,6 +13,7 @@ const PageHeader = ({ isScrolled, backTo, backLabel = 'Voltar' }: PageHeaderProp
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { language, setLanguage } = useLanguage();
+  const { config } = useTenant();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,7 +43,6 @@ const PageHeader = ({ isScrolled, backTo, backLabel = 'Voltar' }: PageHeaderProp
     >
       <div className="max-w-md mx-auto">
         <div className="flex items-center justify-between">
-          {/* Left: Logo + Name */}
           <div className="flex items-center gap-3">
             <Link
               to="/"
@@ -50,41 +51,39 @@ const PageHeader = ({ isScrolled, backTo, backLabel = 'Voltar' }: PageHeaderProp
                   ? 'bg-blue-50 border border-blue-200'
                   : 'bg-white/20 border border-white/30 hover:bg-white/30'
               }`}
-              title="Ir para página inicial"
-              aria-label="Ir para página inicial"
+              title="Ir para pagina inicial"
+              aria-label="Ir para pagina inicial"
             >
               <img
-                alt="Urubici Park Hotel"
+                alt={config?.title || 'Guest Guide'}
                 className="w-full h-full object-cover"
-                src="https://public.readdy.ai/ai/img_res/90171d99-2a4d-411b-855c-8e594b40cefb.png"
+                src={config?.logoUrl || 'https://public.readdy.ai/ai/img_res/90171d99-2a4d-411b-855c-8e594b40cefb.png'}
               />
             </Link>
             <Link
               to="/"
               className="drop-shadow-lg hover:opacity-80 transition-all cursor-pointer text-left"
-              title="Ir para página inicial"
-              aria-label="Ir para página inicial"
+              title="Ir para pagina inicial"
+              aria-label="Ir para pagina inicial"
             >
               <p
                 className={`font-bold text-lg drop-shadow-md whitespace-nowrap ${
                   isScrolled ? 'text-blue-600' : 'text-blue-300'
                 }`}
               >
-                Urubici Park Hotel
+                {config?.title || 'Guest Guide'}
               </p>
               <p
                 className={`text-xs drop-shadow-sm mt-0.5 leading-tight ${
                   isScrolled ? 'text-gray-600' : 'text-white/90'
                 }`}
               >
-                Hospedagem Premium, experiência única na Serra.
+                {config?.subtitle || 'Hospedagem Premium'}
               </p>
             </Link>
           </div>
 
-          {/* Right: Globe + Back */}
           <div className="flex items-center gap-2">
-            {/* Language Switcher */}
             <div className="relative" ref={menuRef}>
               <button
                 className={iconClass}
@@ -107,9 +106,7 @@ const PageHeader = ({ isScrolled, backTo, backLabel = 'Voltar' }: PageHeaderProp
                         setLangMenuOpen(false);
                       }}
                       className={`w-full text-left px-4 py-2 text-sm hover:bg-white/50 transition-colors ${
-                        language === lang 
-                          ? 'text-blue-600 font-semibold' 
-                          : 'text-gray-700'
+                        language === lang ? 'text-blue-600 font-semibold' : 'text-gray-700'
                       }`}
                     >
                       {languageLabels[lang]}
