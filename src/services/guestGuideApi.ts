@@ -297,6 +297,7 @@ export const EventTypes = {
   PARTNER_VIEW: 'partner_view',
   CTA_CLICK: 'cta_click',
   VIDEO_IMPRESSION: 'video_impression',
+  VIDEO_PLAY: 'video_play',
   VIDEO_START: 'video_start',
   VIDEO_COMPLETE: 'video_complete',
   PROMOTION_VIEW: 'promotion_view',
@@ -354,7 +355,7 @@ export async function trackPartnerView(
 }
 
 export async function trackVideoEvent(
-  eventType: 'video_impression' | 'video_start' | 'video_complete',
+  eventType: 'video_impression' | 'video_play' | 'video_start' | 'video_complete',
   videoId?: string,
   videoTitle?: string
 ): Promise<TrackEventResponse> {

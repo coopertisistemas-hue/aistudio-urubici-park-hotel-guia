@@ -107,6 +107,7 @@ Deno.serve(async (req) => {
       'partner_view',
       'cta_click',
       'video_impression',
+      'video_play',
       'video_start',
       'video_complete',
       'promotion_view',
