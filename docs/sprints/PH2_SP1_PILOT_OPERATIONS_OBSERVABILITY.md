@@ -21,3 +21,7 @@
 - QA gates pass (`type-check`, `lint`, `build`).
 - Smoke command available for staging runtime checks.
 - Migration is additive and idempotent.
+
+## Execution status
+- Implemented and pushed in PH2 execution flow.
+- QA gates passed; runtime smoke remains environment-dependent on valid staging anon JWT.
